@@ -1,0 +1,8 @@
+{
+  "name": "Quicklance",
+  "description": "Micro-freelancing platform for quick technical fixes and expert help via video calls.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
