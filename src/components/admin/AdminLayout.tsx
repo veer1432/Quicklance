@@ -13,7 +13,8 @@ import {
   UserX,
   AlertTriangle,
   Sun,
-  Moon
+  Moon,
+  MessageSquare
 } from 'lucide-react';
 import { useFirebase } from '@/src/contexts/FirebaseContext';
 import { useTheme } from '@/src/contexts/ThemeContext';
@@ -57,6 +58,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
+    { icon: MessageSquare, label: 'Market Feedback', path: '/admin/feedback' },
     { icon: UserCheck, label: 'Quicklancer Approval', path: '/admin/approvals' },
     { icon: Users, label: 'Manage Quicklancers', path: '/admin/quicklancers' },
     { icon: Users, label: 'Manage Clients', path: '/admin/clients' },

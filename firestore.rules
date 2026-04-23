@@ -78,6 +78,11 @@ service cloud.firestore {
         allow create: if isAuthenticated() && (request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.participants);
       }
     }
+
+    match /feedbackResponses/{responseId} {
+      allow create: if true; // Public can submit feedback
+      allow read: if isAdmin(); // Only admin can see feedback
+    }
   }
 }
 

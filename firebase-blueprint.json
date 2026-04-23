@@ -104,6 +104,33 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["senderId", "text", "createdAt"]
+    },
+    "FeedbackResponse": {
+      "title": "Feedback Response",
+      "description": "User feedback and beta signup information.",
+      "type": "object",
+      "properties": {
+        "userPersona": { "type": "string" },
+        "techStack": { "type": "array", "items": { "type": "string" } },
+        "issueFrequency": { "type": "string" },
+        "currentMove": { "type": "array", "items": { "type": "string" } },
+        "timeWastedPerIssue": { "type": "string" },
+        "failureRate": { "type": "string" },
+        "willingnessToPay": { "type": "string" },
+        "pricePoint": { "type": "string" },
+        "barrierToPay": { "type": "array", "items": { "type": "string" } },
+        "trustTriggers": { "type": "array", "items": { "type": "string" } },
+        "chatBeforeBooking": { "type": "string" },
+        "bookingPreference": { "type": "string" },
+        "likelihoodToTry": { "type": "number" },
+        "wantEarlyAccess": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "whatsapp": { "type": "string" },
+        "recentIssueStory": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userPersona", "issueFrequency", "willingnessToPay", "createdAt"]
     }
   },
   "firestore": {
@@ -134,6 +161,10 @@
     "/chatRooms/{roomId}/messages/{messageId}": {
       "schema": "ChatMessage",
       "description": "Messages within a chat room."
+    },
+    "/feedbackResponses/{responseId}": {
+      "schema": "FeedbackResponse",
+      "description": "Market research feedback and beta signups."
     }
   }
 }

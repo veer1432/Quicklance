@@ -129,6 +129,39 @@ export interface Session {
   updatedAt: string;
 }
 
+export interface FeedbackResponse {
+  id?: string;
+  // Section 1: Background
+  userPersona: string; // Student, Freelancer, etc.
+  techStack: string[]; // WordPress, Shopify, etc.
+  issueFrequency: string;
+
+  // Section 2: Problem
+  currentMove: string[]; // Google, YouTube, etc.
+  timeWastedPerIssue: string;
+  failureRate: string;
+
+  // Section 3: Payment
+  willingnessToPay: string;
+  pricePoint: string;
+  barrierToPay: string[];
+  trustTriggers: string[];
+
+  // Section 4: Product Feedback
+  chatBeforeBooking: string;
+  bookingPreference: string;
+  likelihoodToTry: number; // 1-5
+
+  // Section 5: Early Access
+  wantEarlyAccess: string;
+  name: string;
+  email: string;
+  whatsapp: string;
+  recentIssueStory: string;
+  
+  createdAt: string;
+}
+
 export interface Dispute {
   id: string;
   sessionId: string;
@@ -141,13 +174,14 @@ export interface Dispute {
 }
 
 export const CATEGORIES = [
-  "Wix",
-  "Shopify",
+  "Wix/Websites",
+  "Shopify/Store",
   "WordPress",
-  "Coding",
-  "Database",
+  "Video Editing",
+  "Finance/GST",
+  "Ads/Marketing",
+  "UI/UX Design",
+  "Coding/Tech",
   "SEO",
-  "Marketing",
-  "Design",
-  "General Tech"
+  "General Assistance"
 ] as const;

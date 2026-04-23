@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Zap, Mail, Lock, ArrowRight, RefreshCw } from 'lucide-react';
+import { Zap, Mail, Lock, ArrowRight, RefreshCw, Sun, Moon } from 'lucide-react';
 import { Button } from '@/src/components/ui/Button';
 import { Card } from '@/src/components/ui/Card';
+import { motion } from 'motion/react';
 import { useFirebase } from '@/src/contexts/FirebaseContext';
+import { useTheme } from '@/src/contexts/ThemeContext';
 
 export default function Login() {
   const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const { theme, toggleTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -60,7 +63,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4 transition-colors duration-300">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4 transition-colors duration-300 relative">
+      <div className="absolute top-8 right-8">
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={toggleTheme}
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
+        >
+          {theme === "light" ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
+        </motion.button>
+      </div>
+
       <Link to="/" className="flex items-center gap-2 text-3xl font-black tracking-tight text-blue-600 mb-12">
         <Zap className="h-10 w-10 fill-blue-600" />
         <span>Quicklance</span>
