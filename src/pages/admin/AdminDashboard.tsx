@@ -11,7 +11,8 @@ import {
   ShieldCheck,
   AlertTriangle,
   UserCheck,
-  UserX
+  UserX,
+  MessageSquare
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { collection, query, where, getDocs, limit, orderBy, Timestamp } from 'firebase/firestore';
