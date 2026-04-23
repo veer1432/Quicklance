@@ -73,7 +73,7 @@ function AppContent() {
           <Route path="/dashboard/analytics" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><div className="text-4xl font-black">Analytics & MIS (Coming Soon)</div></DashboardLayout>} />
 
           <Route path="/become-quicklancer" element={FEEDBACK_MODE ? <Navigate to="/" /> : <BecomeQuicklancer />} />
-          <Route path="/login" element={FEEDBACK_MODE ? <Navigate to="/" /> : <Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/feedback" element={<Feedback />} />
 
           {/* Main App Routes */}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   CheckCircle2, 
@@ -50,6 +50,7 @@ const STEPS = [
 ];
 
 export default function Feedback() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDone, setIsDone] = useState(false);
@@ -129,7 +130,7 @@ export default function Feedback() {
           <p className="text-xl text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
             Thank you for helping us build Quicklance. We'll reach out to you with your early access sessions soon.
           </p>
-          <Button onClick={() => window.location.href = '/'} className="w-full h-16 text-xl rounded-full font-bold">
+          <Button onClick={() => navigate('/')} className="w-full h-16 text-xl rounded-full font-bold">
             Return to Home
           </Button>
         </motion.div>

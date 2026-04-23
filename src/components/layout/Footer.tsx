@@ -4,8 +4,10 @@ import { useFirebase } from "@/src/contexts/FirebaseContext";
 import { useTheme } from "@/src/contexts/ThemeContext";
 
 export default function Footer() {
-  const { profile } = useFirebase();
+  const { profile, user } = useFirebase();
   const { theme, toggleTheme } = useTheme();
+
+  const adminPath = profile?.role === 'admin' ? "/admin" : "/login";
 
   return (
     <footer className="border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#111827] pt-20 pb-10 transition-colors duration-300">
@@ -32,7 +34,7 @@ export default function Footer() {
               <li><Link to="/post-issue" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Post an Issue</Link></li>
               <li><Link to="/how-it-works" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">How it Works</Link></li>
               <li>
-                <Link to="/admin" className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+                <Link to={adminPath} className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
                   <ShieldCheck className="h-4 w-4" />
                   Admin Panel
                 </Link>

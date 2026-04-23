@@ -91,6 +91,7 @@ export default function AdminDashboard() {
     { label: 'Total Quicklancers', value: stats.totalQuicklancers, icon: Users, color: 'blue', trend: '+12%' },
     { label: 'Pending Approvals', value: stats.pendingApprovals, icon: UserCheck, color: 'yellow', trend: 'High Priority' },
     { label: 'Total Connects', value: stats.totalConnects, icon: Video, color: 'green', trend: '+8%' },
+    { label: 'Market Feedback', value: 'View Responses', icon: MessageSquare, color: 'blue', isLink: true, link: '/admin/feedback' },
     { label: 'Total Platform Revenue', value: formatPrice(stats.totalEarnings), icon: TrendingUp, color: 'purple', trend: '+15%' },
   ];
 
@@ -106,29 +107,41 @@ export default function AdminDashboard() {
     <div className="space-y-12 transition-colors duration-300">
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-        {statCards.map((stat, idx) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.1 }}
-          >
-            <Card className="p-8">
+        {statCards.map((stat, idx) => {
+          const content = (
+            <Card className="p-8 h-full">
               <div className="flex items-start justify-between mb-6">
                 <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-${stat.color}-50 dark:bg-${stat.color}-900/20 text-${stat.color}-600 dark:text-${stat.color}-400`}>
                   <stat.icon className="h-6 w-6" />
                 </div>
-                <div className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold ${
-                  stat.trend.startsWith('+') ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400'
-                }`}>
-                  {stat.trend}
-                </div>
+                {stat.trend && (
+                  <div className={`flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold ${
+                    stat.trend.startsWith('+') ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' : 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400'
+                  }`}>
+                    {stat.trend}
+                  </div>
+                )}
               </div>
               <p className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{stat.label}</p>
               <h3 className="mt-1 text-3xl font-black text-gray-900 dark:text-gray-100">{stat.value}</h3>
             </Card>
-          </motion.div>
-        ))}
+          );
+
+          return (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+            >
+              {'link' in stat ? (
+                <Link to={stat.link as string}>{content}</Link>
+              ) : (
+                content
+              )}
+            </motion.div>
+          );
+        })}
       </div>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
