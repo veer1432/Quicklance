@@ -77,6 +77,55 @@ export default function FeedbackAnalysis() {
     return searchMatch;
   });
 
+  const handleExportCSV = () => {
+    if (feedbacks.length === 0) return;
+
+    const headers = [
+      'Name',
+      'Email',
+      'WhatsApp',
+      'Persona',
+      'Likelihood (1-5)',
+      'Willing to Pay',
+      'Price Point',
+      'Want Early Access',
+      'Recent Struggle',
+      'Tech Stack',
+      'Current Moves',
+      'Date'
+    ];
+
+    const rows = feedbacks.map(fb => [
+      `"${fb.name || 'Anonymous'}"`,
+      `"${fb.email || ''}"`,
+      `"${fb.whatsapp || ''}"`,
+      `"${fb.userPersona || ''}"`,
+      fb.likelihoodToTry || 0,
+      `"${fb.willingnessToPay || ''}"`,
+      `"${fb.pricePoint || ''}"`,
+      `"${fb.wantEarlyAccess || ''}"`,
+      `"${(fb.recentIssueStory || '').replace(/"/g, '""')}"`,
+      `"${(fb.techStack || []).join(', ')}"`,
+      `"${(fb.currentMove || []).join(', ')}"`,
+      `"${formatDate(fb.createdAt)}"`
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Quicklance_Feedback_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -144,7 +193,7 @@ export default function FeedbackAnalysis() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={handleExportCSV}>
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
