@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     </div>
   );
 
-  if (!profile || (profile.role !== 'expert' && profile.role !== 'admin')) {
+  if (!profile || !['client', 'expert', 'admin'].includes(profile.role)) {
     return <Navigate to="/experts" replace />;
   }
 
@@ -105,7 +105,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               )}
               <div className="overflow-hidden">
                 <p className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">{profile.displayName}</p>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quicklancer</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                  {profile.role === 'expert' ? 'Quicklancer' : profile.role}
+                </p>
               </div>
             </div>
           </div>

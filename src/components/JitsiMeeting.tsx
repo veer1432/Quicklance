@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { JITSI_DOMAIN } from '@/src/config';
 
 interface JitsiMeetingProps {
   roomName: string;
@@ -30,7 +31,7 @@ const JitsiMeeting = React.memo(({ roomName, displayName, onClose }: JitsiMeetin
       return;
     }
 
-    const domain = 'meet.jit.si';
+    const domain = JITSI_DOMAIN;
     const options = {
       roomName: roomName,
       width: '100%',

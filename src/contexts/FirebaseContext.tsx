@@ -23,6 +23,7 @@ import {
 } from '../firebase';
 import { doc, getDoc, setDoc, serverTimestamp, collection, addDoc, query, where, onSnapshot } from 'firebase/firestore';
 import { UserProfile, Session } from '../types';
+import { ADMIN_EMAIL, IS_TEST_CREDITS_MODE } from '../config';
 
 interface FirebaseContextType {
   user: User | null;
@@ -58,8 +59,9 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const data = userDoc.data() as UserProfile;
-            // Force admin role for the specific email if it's not already set
-            if (user.email === 'itz.roni2512@gmail.com' && data.role !== 'admin') {
+            const isConfiguredAdmin = !!ADMIN_EMAIL && user.email?.toLowerCase() === ADMIN_EMAIL;
+            // Force admin role for the configured admin email if it's not already set.
+            if (isConfiguredAdmin && data.role !== 'admin') {
               const updatedProfile = { ...data, role: 'admin' as const };
               await setDoc(doc(db, 'users', user.uid), { role: 'admin' }, { merge: true });
               setProfile(updatedProfile);
@@ -68,7 +70,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             }
           } else {
             // New user profile
-            const isInitialAdmin = user.email === 'itz.roni2512@gmail.com';
+            const isInitialAdmin = !!ADMIN_EMAIL && user.email?.toLowerCase() === ADMIN_EMAIL;
             const newProfile: UserProfile = {
               uid: user.uid,
               email: user.email || '',
@@ -178,6 +180,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         amount,
         type,
         description,
+        mode: IS_TEST_CREDITS_MODE ? 'test_credits' : 'live',
         createdAt: serverTimestamp(),
       });
 

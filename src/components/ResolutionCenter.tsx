@@ -17,6 +17,7 @@ import { collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, 
 import { Session, Dispute } from '../types';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+import { IS_TEST_CREDITS_MODE } from '../config';
 
 export default function ResolutionCenter() {
   const { user, profile, processTransaction } = useFirebase();
@@ -271,7 +272,11 @@ export default function ResolutionCenter() {
               <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Confirm Resolution</h2>
               <p className="mt-4 text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
                 Please confirm: Are you satisfied that your issue has been fully resolved? 
-                <span className="block mt-2 font-bold text-red-500">Once confirmed, the payment will be released to the Quicklancer and cannot be reversed.</span>
+                <span className="block mt-2 font-bold text-red-500">
+                  {IS_TEST_CREDITS_MODE
+                    ? 'Once confirmed, test credits will be released to the Quicklancer.'
+                    : 'Once confirmed, the payment will be released to the Quicklancer and cannot be reversed.'}
+                </span>
               </p>
 
               <div className="mt-8 space-y-4">

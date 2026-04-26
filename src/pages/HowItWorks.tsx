@@ -253,7 +253,7 @@ export default function HowItWorks() {
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {[
               { title: "Time Efficient", desc: "No more waiting days for a freelancer to respond. Connect with experts instantly.", icon: Clock },
-              { title: "Secure Payments", desc: "Your payments are held in escrow and only released once you're satisfied with the fix.", icon: ShieldCheck },
+              { title: "Test-Credit Sessions", desc: "Use test credits to validate live sessions while production payments are being connected.", icon: ShieldCheck },
               { title: "Expert Vetting", desc: "We verify the skills of our Quicklancers to ensure you get high-quality assistance.", icon: Zap }
             ].map((feature, idx) => (
               <div key={idx} className="rounded-3xl bg-white dark:bg-[#0F172A] p-8 shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 hover:ring-blue-100 dark:hover:ring-blue-900/50 hover:shadow-xl transition-all">

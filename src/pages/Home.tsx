@@ -158,8 +158,8 @@ export default function Home() {
             {[
               { step: "01", icon: MessageSquare, title: "Describe Task", desc: "Post the specific digital hurdle you're facing with your project." },
               { step: "02", icon: Video, title: "Connect", desc: "Instantly match with a Quicklancer who specializes in that area." },
-              { step: "03", icon: Lock, title: "Secure Payment", desc: "Pay for the session upfront. We hold the funds safely in escrow." },
-              { step: "04", icon: CheckCircle2, title: "Live Help & Release", desc: "Join the call and get it resolved. Funds are released only after completion." }
+              { step: "03", icon: Lock, title: "Test Credits", desc: "Use test credits for sessions while real payment processing is being connected." },
+              { step: "04", icon: CheckCircle2, title: "Live Help & Review", desc: "Join the call, get the issue resolved, and confirm the session outcome." }
             ].map((item, idx) => (
               <motion.div key={idx} variants={itemVariants} className="relative group">
                 <div className="flex items-center justify-between mb-6">

@@ -11,6 +11,7 @@ import { UserProfile, Session } from "@/src/types";
 import { useCurrency } from "@/src/contexts/CurrencyContext";
 import { useNavigate } from "react-router-dom";
 import ChatWindow from "@/src/components/ChatWindow";
+import { IS_TEST_CREDITS_MODE, SESSION_BASE_PRICE } from "@/src/config";
 
 export default function ExpertProfile() {
   const { id } = useParams();
@@ -43,8 +44,8 @@ export default function ExpertProfile() {
       return;
     }
 
-    if (!skipPayment && (profile?.walletBalance || 0) < 250) {
-      alert("Insufficient balance. Please add at least ₹250 to your wallet to start a session.");
+    if (!skipPayment && (profile?.walletBalance || 0) < SESSION_BASE_PRICE) {
+      alert(`Insufficient test credits. Please add at least ${formatPrice(SESSION_BASE_PRICE)} in test credits to start a session.`);
       navigate('/dashboard/wallet');
       return;
     }
@@ -52,8 +53,7 @@ export default function ExpertProfile() {
     setIsStartingSession(true);
     try {
       if (!skipPayment) {
-        // Charge ₹250 upfront
-        await processTransaction(250, 'debit', `Session with ${expert.displayName}`);
+        await processTransaction(SESSION_BASE_PRICE, 'debit', `${IS_TEST_CREDITS_MODE ? 'Test credit' : 'Session'} charge with ${expert.displayName}`);
       }
 
       // Create session
@@ -63,8 +63,8 @@ export default function ExpertProfile() {
         status: 'active',
         startTime: new Date().toISOString(),
         durationMinutes: 30,
-        basePrice: skipPayment ? 0 : 250,
-        totalPaid: skipPayment ? 0 : 250,
+        basePrice: skipPayment ? 0 : SESSION_BASE_PRICE,
+        totalPaid: skipPayment ? 0 : SESSION_BASE_PRICE,
         isExtended: false,
         extensionCount: 0,
         meetingLink: `Quicklance-${expert.uid.substring(0, 5)}-${user.uid.substring(0, 5)}-${Math.random().toString(36).substring(2, 7)}`,
@@ -403,7 +403,7 @@ export default function ExpertProfile() {
               <div className="space-y-4 relative">
                 {expert.isAvailable !== false ? (
                   <>
-                    {(profile?.walletBalance || 0) >= 250 ? (
+                    {(profile?.walletBalance || 0) >= SESSION_BASE_PRICE ? (
                       <Button 
                         onClick={() => handleCallNow(false)}
                         disabled={isStartingSession}
@@ -420,14 +420,14 @@ export default function ExpertProfile() {
                             <AlertCircle className="h-5 w-5" />
                             Insufficient balance
                           </p>
-                          <p className="text-xs text-amber-600 dark:text-amber-500 mt-1 font-bold">You need at least ₹250 to start a session.</p>
+                          <p className="text-xs text-amber-600 dark:text-amber-500 mt-1 font-bold">You need at least {formatPrice(SESSION_BASE_PRICE)} in test credits to start a session.</p>
                         </div>
                         <Button 
                           onClick={() => navigate('/dashboard/wallet')}
                           variant="outline"
                           className="w-full py-6 text-sm font-black border-amber-200 text-amber-700 hover:bg-amber-50 rounded-2xl"
                         >
-                          Add Funds to Wallet
+                          Add Test Credits
                         </Button>
                         <div className="relative py-2">
                           <div className="absolute inset-0 flex items-center">
@@ -475,7 +475,7 @@ export default function ExpertProfile() {
                   <div className="h-8 w-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
                     <ShieldCheck className="h-4 w-4 text-blue-600" />
                   </div>
-                  <span>Secure escrow payments</span>
+                  <span>{IS_TEST_CREDITS_MODE ? 'Test-credit session balance' : 'Secure escrow payments'}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 font-bold">
                   <div className="h-8 w-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
@@ -514,4 +514,3 @@ export default function ExpertProfile() {
     </div>
   );
 }
-
