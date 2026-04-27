@@ -140,7 +140,7 @@ export default function ProfileEditor() {
           </h1>
           <p className="mt-2 text-lg text-gray-500 dark:text-gray-400 font-medium">
             {isExpert 
-              ? 'Manage your professional identity on Quicklance.' 
+              ? 'Manage your professional identity on Quiklance.' 
               : 'Manage your personal information and preferences.'}
           </p>
         </div>

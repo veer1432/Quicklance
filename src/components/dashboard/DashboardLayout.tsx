@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     </div>
   );
 
-  if (!profile || !['client', 'expert', 'admin'].includes(profile.role)) {
+  if (!profile || (profile.role !== 'expert' && profile.role !== 'admin')) {
     return <Navigate to="/experts" replace />;
   }
 
@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-blue-900/40">
               <Zap className="h-6 w-6 fill-current" />
             </div>
-            <span className="text-2xl font-black tracking-tight text-gray-900 dark:text-gray-100">Quicklance</span>
+            <span className="text-2xl font-black tracking-tight text-gray-900 dark:text-gray-100">Quiklance</span>
           </Link>
 
           <nav className="space-y-2">
@@ -105,9 +105,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               )}
               <div className="overflow-hidden">
                 <p className="truncate text-sm font-bold text-gray-900 dark:text-gray-100">{profile.displayName}</p>
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  {profile.role === 'expert' ? 'Quicklancer' : profile.role}
-                </p>
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Quiklancer</p>
               </div>
             </div>
           </div>

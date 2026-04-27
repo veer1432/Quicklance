@@ -27,7 +27,7 @@ import { Sun, Moon } from 'lucide-react';
 
 type Step = 'account' | 'email-verify' | 'phone' | 'experience' | 'success';
 
-export default function BecomeQuicklancer() {
+export default function BecomeQuiklancer() {
   const [step, setStep] = useState<Step>('account');
   const { theme, toggleTheme } = useTheme();
   const [formData, setFormData] = useState({
@@ -174,7 +174,7 @@ export default function BecomeQuicklancer() {
           >
             <div className="space-y-2">
               <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">Create your account</h2>
-              <p className="text-gray-500 dark:text-gray-400 font-medium">Start your journey as a Quicklancer today.</p>
+              <p className="text-gray-500 dark:text-gray-400 font-medium">Start your journey as a Quiklancer today.</p>
             </div>
             
             {error && (
@@ -236,9 +236,9 @@ export default function BecomeQuicklancer() {
 
               <div className="pt-4 text-center">
                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Already a Quicklancer?{' '}
+                  Already a Quiklancer?{' '}
                   <Link to="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
-                    Quicklancer Login
+                    Quiklancer Login
                   </Link>
                 </p>
               </div>
@@ -538,7 +538,7 @@ export default function BecomeQuicklancer() {
 
       <Link to="/" className="flex items-center gap-2 text-3xl font-black tracking-tight text-blue-600 mb-12">
         <Zap className="h-10 w-10 fill-blue-600" />
-        <span>Quicklance</span>
+        <span>Quiklance</span>
       </Link>
 
       <Card className="w-full max-w-md p-10 shadow-2xl shadow-blue-100/50 dark:shadow-blue-950/50 border-blue-50 dark:border-gray-800">

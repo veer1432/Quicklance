@@ -11,7 +11,6 @@ import { Card } from './ui/Card';
 import VideoCall from './VideoCall';
 import JitsiMeeting from './JitsiMeeting';
 import SessionTimer from './SessionTimer';
-import { IS_TEST_CREDITS_MODE, SESSION_BASE_PRICE } from '../config';
 
 export default function SessionManager() {
   const { user, profile, processTransaction } = useFirebase();
@@ -118,14 +117,15 @@ export default function SessionManager() {
       const isTestSession = activeSession.basePrice === 0;
       
       if (!isTestSession) {
-        await processTransaction(SESSION_BASE_PRICE, 'debit', `${IS_TEST_CREDITS_MODE ? 'Test credit' : 'Session'} extension for ${activeSession.id}`);
+        // Charge ₹250 for extension
+        await processTransaction(250, 'debit', `Session extension for ${activeSession.id}`);
       }
       
       await updateDoc(doc(db, 'sessions', activeSession.id), {
         durationMinutes: activeSession.durationMinutes + 30,
         isExtended: true,
         extensionCount: (activeSession.extensionCount || 0) + 1,
-        totalPaid: activeSession.totalPaid + (isTestSession ? 0 : SESSION_BASE_PRICE),
+        totalPaid: activeSession.totalPaid + (isTestSession ? 0 : 250),
         updatedAt: serverTimestamp(),
       });
       
@@ -331,7 +331,7 @@ export default function SessionManager() {
 
               <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">Session ending soon</h2>
               <p className="mt-2 text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                Your session is about to end in 5 minutes. Do you want to extend for another 30 minutes for {formatPrice(SESSION_BASE_PRICE)}{IS_TEST_CREDITS_MODE ? ' in test credits' : ''}?
+                Your session is about to end in 5 minutes. Do you want to extend for another 30 minutes for {formatPrice(250)}?
               </p>
 
               <div className="mt-8 space-y-4">
@@ -376,7 +376,7 @@ export default function SessionManager() {
                   <CheckCircle2 className="h-10 w-10" />
                 </div>
                 <h2 className="text-3xl font-black text-gray-900 dark:text-gray-100 italic tracking-tight">Session Completed!</h2>
-                <p className="mt-3 text-gray-500 dark:text-gray-400 font-medium text-lg">How was your experience with the Quicklancer?</p>
+                <p className="mt-3 text-gray-500 dark:text-gray-400 font-medium text-lg">How was your experience with the Quiklancer?</p>
               </div>
 
               <div className="mt-10 space-y-8">

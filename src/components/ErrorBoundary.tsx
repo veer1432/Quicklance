@@ -37,10 +37,22 @@ export class ErrorBoundary extends Component<Props, State> {
 
       try {
         if (this.state.error?.message) {
-          const parsed = JSON.parse(this.state.error.message);
-          if (parsed.error && parsed.operationType) {
+          const message = this.state.error.message;
+          
+          // Handle direct Firestore unavailable error
+          if (message.includes('code=unavailable')) {
+            errorMessage = "Could not reach the database. Please check your internet connection.";
             isFirestoreError = true;
-            errorMessage = `Database Error: ${parsed.error} during ${parsed.operationType} on ${parsed.path || 'unknown path'}`;
+          } else {
+            const parsed = JSON.parse(message);
+            if (parsed.error && parsed.operationType) {
+              isFirestoreError = true;
+              if (parsed.error.includes('code=unavailable')) {
+                errorMessage = "Database connection failed. Please check your internet connection.";
+              } else {
+                errorMessage = `Database Error: ${parsed.error} during ${parsed.operationType} on ${parsed.path || 'unknown path'}`;
+              }
+            }
           }
         }
       } catch (e) {

@@ -110,7 +110,7 @@ export default function Home() {
           <div className="mb-16 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
               <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl">What do you need help with?</h2>
-              <p className="mt-4 text-xl text-gray-500 dark:text-gray-400 font-medium">Choose a category and find a Quicklancer ready to help you right now.</p>
+              <p className="mt-4 text-xl text-gray-500 dark:text-gray-400 font-medium">Choose a category and find a Quiklancer ready to help you right now.</p>
             </div>
           </div>
 
@@ -144,7 +144,7 @@ export default function Home() {
       <section className="py-24 bg-gray-50 dark:bg-[#111827] transition-colors duration-300">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl tracking-tight">How Quicklance Works</h2>
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-5xl tracking-tight">How Quiklance Works</h2>
             <p className="mt-4 text-xl text-gray-600 dark:text-gray-400 font-medium">Get your project hurdles cleared in four simple steps.</p>
           </div>
 
@@ -157,9 +157,9 @@ export default function Home() {
           >
             {[
               { step: "01", icon: MessageSquare, title: "Describe Task", desc: "Post the specific digital hurdle you're facing with your project." },
-              { step: "02", icon: Video, title: "Connect", desc: "Instantly match with a Quicklancer who specializes in that area." },
-              { step: "03", icon: Lock, title: "Test Credits", desc: "Use test credits for sessions while real payment processing is being connected." },
-              { step: "04", icon: CheckCircle2, title: "Live Help & Review", desc: "Join the call, get the issue resolved, and confirm the session outcome." }
+              { step: "02", icon: Video, title: "Connect", desc: "Instantly match with a Quiklancer who specializes in that area." },
+              { step: "03", icon: Lock, title: "Secure Payment", desc: "Pay for the session upfront. We hold the funds safely in escrow." },
+              { step: "04", icon: CheckCircle2, title: "Live Help & Release", desc: "Join the call and get it resolved. Funds are released only after completion." }
             ].map((item, idx) => (
               <motion.div key={idx} variants={itemVariants} className="relative group">
                 <div className="flex items-center justify-between mb-6">
@@ -237,7 +237,7 @@ export default function Home() {
             <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,white,transparent)] opacity-10" />
             <h2 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">Ready to unblock your project?</h2>
             <p className="mx-auto mt-8 max-w-xl text-xl text-blue-50 font-medium">
-              Join thousands of makers, marketers, and business owners who use Quicklance to solve digital hurdles in record time.
+              Join thousands of makers, marketers, and business owners who use Quiklance to solve digital hurdles in record time.
             </p>
             <div className="mt-12 flex justify-center gap-4">
               <Button asChild size="lg" variant="secondary" className="h-20 px-12 text-xl bg-white text-blue-600 hover:bg-gray-50 dark:bg-white dark:text-blue-600">

@@ -77,7 +77,7 @@ export default function Login() {
 
       <Link to="/" className="flex items-center gap-2 text-3xl font-black tracking-tight text-blue-600 mb-12">
         <Zap className="h-10 w-10 fill-blue-600" />
-        <span>Quicklance</span>
+        <span>Quiklance</span>
       </Link>
 
       <Card className="w-full max-w-md p-10 shadow-2xl shadow-blue-100/50 dark:shadow-blue-950/50 border-blue-50 dark:border-gray-800">
@@ -87,7 +87,7 @@ export default function Login() {
               {mode === 'login' ? 'Welcome back' : 'Create account'}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 font-medium">
-              {mode === 'login' ? 'Log in to your account.' : 'Join Quicklance as a client.'}
+              {mode === 'login' ? 'Log in to your account.' : 'Join Quiklance as a client.'}
             </p>
           </div>
           
@@ -188,8 +188,8 @@ export default function Login() {
               )}
             </p>
             <div className="pt-2">
-              <Link to="/become-quicklancer" className="text-xs font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
-                Want to earn? Become a Quicklancer
+              <Link to="/become-quiklancer" className="text-xs font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
+                Want to earn? Become a Quiklancer
               </Link>
             </div>
           </div>

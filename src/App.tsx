@@ -6,7 +6,7 @@ import Experts from "./pages/Experts";
 import PostIssue from "./pages/PostIssue";
 import HowItWorks from "./pages/HowItWorks";
 import ExpertProfile from "./pages/ExpertProfile";
-import BecomeQuicklancer from "./pages/BecomeQuicklancer";
+import BecomeQuiklancer from "./pages/BecomeQuiklancer";
 import Login from "./pages/Login";
 import Feedback from "./pages/Feedback";
 import { FirebaseProvider, useFirebase } from "./contexts/FirebaseContext";
@@ -25,7 +25,7 @@ import ResolutionCenter from "./components/ResolutionCenter";
 
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
-import QuicklancerManagement from "./pages/admin/QuicklancerManagement";
+import QuiklancerManagement from "./pages/admin/QuiklancerManagement";
 import ClientManagement from "./pages/admin/ClientManagement";
 import MISReports from "./pages/admin/MISReports";
 import DisputeManagement from "./pages/admin/DisputeManagement";
@@ -56,9 +56,9 @@ function AppContent() {
         <Routes>
           {/* Admin Routes */}
           <Route path="/admin" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><AdminDashboard /></AdminLayout>} />
-          <Route path="/admin/quicklancers" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><QuicklancerManagement /></AdminLayout>} />
+          <Route path="/admin/quiklancers" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><QuiklancerManagement /></AdminLayout>} />
           <Route path="/admin/clients" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><ClientManagement /></AdminLayout>} />
-          <Route path="/admin/approvals" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><QuicklancerManagement /></AdminLayout>} />
+          <Route path="/admin/approvals" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><QuiklancerManagement /></AdminLayout>} />
           <Route path="/admin/reports" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><MISReports /></AdminLayout>} />
           <Route path="/admin/disputes" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><DisputeManagement /></AdminLayout>} />
           <Route path="/admin/feedback" element={<AdminLayout><FeedbackAnalysis /></AdminLayout>} />
@@ -72,7 +72,7 @@ function AppContent() {
           <Route path="/dashboard/requests" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><div className="text-4xl font-black">Requests (Coming Soon)</div></DashboardLayout>} />
           <Route path="/dashboard/analytics" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><div className="text-4xl font-black">Analytics & MIS (Coming Soon)</div></DashboardLayout>} />
 
-          <Route path="/become-quicklancer" element={FEEDBACK_MODE ? <Navigate to="/" /> : <BecomeQuicklancer />} />
+          <Route path="/become-quiklancer" element={FEEDBACK_MODE ? <Navigate to="/" /> : <BecomeQuiklancer />} />
           <Route path="/login" element={<Login />} />
           <Route path="/feedback" element={<Feedback />} />
 

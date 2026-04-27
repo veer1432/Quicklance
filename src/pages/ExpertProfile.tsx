@@ -11,7 +11,6 @@ import { UserProfile, Session } from "@/src/types";
 import { useCurrency } from "@/src/contexts/CurrencyContext";
 import { useNavigate } from "react-router-dom";
 import ChatWindow from "@/src/components/ChatWindow";
-import { IS_TEST_CREDITS_MODE, SESSION_BASE_PRICE } from "@/src/config";
 
 export default function ExpertProfile() {
   const { id } = useParams();
@@ -44,8 +43,8 @@ export default function ExpertProfile() {
       return;
     }
 
-    if (!skipPayment && (profile?.walletBalance || 0) < SESSION_BASE_PRICE) {
-      alert(`Insufficient test credits. Please add at least ${formatPrice(SESSION_BASE_PRICE)} in test credits to start a session.`);
+    if (!skipPayment && (profile?.walletBalance || 0) < 250) {
+      alert("Insufficient balance. Please add at least ₹250 to your wallet to start a session.");
       navigate('/dashboard/wallet');
       return;
     }
@@ -53,7 +52,8 @@ export default function ExpertProfile() {
     setIsStartingSession(true);
     try {
       if (!skipPayment) {
-        await processTransaction(SESSION_BASE_PRICE, 'debit', `${IS_TEST_CREDITS_MODE ? 'Test credit' : 'Session'} charge with ${expert.displayName}`);
+        // Charge ₹250 upfront
+        await processTransaction(250, 'debit', `Session with ${expert.displayName}`);
       }
 
       // Create session
@@ -63,11 +63,11 @@ export default function ExpertProfile() {
         status: 'active',
         startTime: new Date().toISOString(),
         durationMinutes: 30,
-        basePrice: skipPayment ? 0 : SESSION_BASE_PRICE,
-        totalPaid: skipPayment ? 0 : SESSION_BASE_PRICE,
+        basePrice: skipPayment ? 0 : 250,
+        totalPaid: skipPayment ? 0 : 250,
         isExtended: false,
         extensionCount: 0,
-        meetingLink: `Quicklance-${expert.uid.substring(0, 5)}-${user.uid.substring(0, 5)}-${Math.random().toString(36).substring(2, 7)}`,
+        meetingLink: `Quiklance-${expert.uid.substring(0, 5)}-${user.uid.substring(0, 5)}-${Math.random().toString(36).substring(2, 7)}`,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -147,8 +147,8 @@ export default function ExpertProfile() {
           <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
             <Lock className="h-12 w-12" />
           </div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 mb-4">Quicklancer Profile Locked</h1>
-          <p className="text-lg text-gray-600 dark:text-gray-400 mb-10">Sign in to view full Quicklancer profiles, reviews, and start a live session.</p>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-gray-100 mb-4">Quiklancer Profile Locked</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-400 mb-10">Sign in to view full Quiklancer profiles, reviews, and start a live session.</p>
           <Button onClick={signIn} className="h-16 px-12 text-xl rounded-2xl shadow-2xl shadow-blue-200 dark:shadow-blue-900/40">
             Sign in with Google
           </Button>
@@ -160,8 +160,8 @@ export default function ExpertProfile() {
   if (!expert) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-20 text-center transition-colors duration-300">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Quicklancer not found</h2>
-        <Link to="/experts" className="mt-4 inline-block font-bold text-blue-600 dark:text-blue-400 hover:underline">Back to Quicklancers</Link>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Quiklancer not found</h2>
+        <Link to="/experts" className="mt-4 inline-block font-bold text-blue-600 dark:text-blue-400 hover:underline">Back to Quiklancers</Link>
       </div>
     );
   }
@@ -175,7 +175,7 @@ export default function ExpertProfile() {
             <div className="absolute top-0 right-0 p-6">
               <div className="flex items-center gap-2 rounded-2xl bg-blue-50 dark:bg-blue-900/20 px-4 py-2 text-blue-600 dark:text-blue-400">
                 <ShieldCheck className="h-5 w-5" />
-                <span className="text-sm font-bold">Verified Quicklancer</span>
+                <span className="text-sm font-bold">Verified Quiklancer</span>
               </div>
             </div>
 
@@ -198,7 +198,7 @@ export default function ExpertProfile() {
               <div className="flex-grow space-y-4">
                 <div className="space-y-1">
                   <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-gray-100 tracking-tight">{expert.displayName}</h1>
-                  <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{expert.role === 'expert' ? 'Technical Quicklancer' : expert.role}</p>
+                  <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{expert.role === 'expert' ? 'Technical Quiklancer' : expert.role}</p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-6 text-sm">
@@ -285,7 +285,7 @@ export default function ExpertProfile() {
                         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
                           <Zap className="h-10 w-10" />
                         </div>
-                        <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100">Fresher Quicklancer</h3>
+                        <h3 className="text-2xl font-black text-gray-900 dark:text-gray-100">Fresher Quiklancer</h3>
                         <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto font-medium">
                           This expert is starting their professional journey but has verified skills to help you.
                         </p>
@@ -403,7 +403,7 @@ export default function ExpertProfile() {
               <div className="space-y-4 relative">
                 {expert.isAvailable !== false ? (
                   <>
-                    {(profile?.walletBalance || 0) >= SESSION_BASE_PRICE ? (
+                    {(profile?.walletBalance || 0) >= 250 ? (
                       <Button 
                         onClick={() => handleCallNow(false)}
                         disabled={isStartingSession}
@@ -420,14 +420,14 @@ export default function ExpertProfile() {
                             <AlertCircle className="h-5 w-5" />
                             Insufficient balance
                           </p>
-                          <p className="text-xs text-amber-600 dark:text-amber-500 mt-1 font-bold">You need at least {formatPrice(SESSION_BASE_PRICE)} in test credits to start a session.</p>
+                          <p className="text-xs text-amber-600 dark:text-amber-500 mt-1 font-bold">You need at least ₹250 to start a session.</p>
                         </div>
                         <Button 
                           onClick={() => navigate('/dashboard/wallet')}
                           variant="outline"
                           className="w-full py-6 text-sm font-black border-amber-200 text-amber-700 hover:bg-amber-50 rounded-2xl"
                         >
-                          Add Test Credits
+                          Add Funds to Wallet
                         </Button>
                         <div className="relative py-2">
                           <div className="absolute inset-0 flex items-center">
@@ -460,7 +460,7 @@ export default function ExpertProfile() {
                     variant="outline" className="w-full py-6 text-lg font-black rounded-2xl" size="lg"
                   >
                     <MessageSquare className="mr-3 h-6 w-6" />
-                    Message {(expert.displayName || "Quicklancer").split(' ')[0]}
+                    Message {(expert.displayName || "Quiklancer").split(' ')[0]}
                   </Button>
                 </div>
 
@@ -475,7 +475,7 @@ export default function ExpertProfile() {
                   <div className="h-8 w-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
                     <ShieldCheck className="h-4 w-4 text-blue-600" />
                   </div>
-                  <span>{IS_TEST_CREDITS_MODE ? 'Test-credit session balance' : 'Secure escrow payments'}</span>
+                  <span>Secure escrow payments</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400 font-bold">
                   <div className="h-8 w-8 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center shrink-0">
@@ -493,9 +493,9 @@ export default function ExpertProfile() {
 
             <Card className="p-8 bg-gradient-to-br from-blue-600 to-blue-800 text-white border-none shadow-xl shadow-blue-200 dark:shadow-none">
               <Award className="h-12 w-12 mb-6 text-blue-200" />
-              <h3 className="text-2xl font-black mb-3 tracking-tight">Quicklance Top Rated</h3>
+              <h3 className="text-2xl font-black mb-3 tracking-tight">Quiklance Top Rated</h3>
               <p className="text-blue-100 leading-relaxed font-medium">
-                This expert is in the top 1% of Quicklancers based on client satisfaction and technical proficiency.
+                This expert is in the top 1% of Quiklancers based on client satisfaction and technical proficiency.
               </p>
             </Card>
           </div>
@@ -514,3 +514,4 @@ export default function ExpertProfile() {
     </div>
   );
 }
+

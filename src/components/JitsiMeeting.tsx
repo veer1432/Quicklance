@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { JITSI_DOMAIN } from '@/src/config';
 
 interface JitsiMeetingProps {
   roomName: string;
@@ -31,14 +30,14 @@ const JitsiMeeting = React.memo(({ roomName, displayName, onClose }: JitsiMeetin
       return;
     }
 
-    const domain = JITSI_DOMAIN;
+    const domain = 'meet.jit.si';
     const options = {
       roomName: roomName,
       width: '100%',
       height: '100%',
       parentNode: jitsiContainerRef.current,
       userInfo: {
-        displayName: displayName || 'Quicklancer User'
+        displayName: displayName || 'Quiklancer User'
       },
       configOverwrite: {
         prejoinPageEnabled: false,
@@ -71,7 +70,7 @@ const JitsiMeeting = React.memo(({ roomName, displayName, onClose }: JitsiMeetin
         MOBILE_APP_PROMO: false,
         SHOW_JITSI_WATERMARK: false,
         SHOW_WATERMARK_FOR_GUESTS: false,
-        DEFAULT_REMOTE_DISPLAY_NAME: 'Quicklancer',
+        DEFAULT_REMOTE_DISPLAY_NAME: 'Quiklancer',
       }
     };
 

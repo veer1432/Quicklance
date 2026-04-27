@@ -16,7 +16,7 @@ export default function Footer() {
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               <Zap className="h-8 w-8 fill-blue-600" />
-              <span>Quicklance</span>
+              <span>Quiklance</span>
             </Link>
             <p className="text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
               The micro-freelancing platform for quick digital fixes. Get expert help via video calls and screen sharing, exactly when you need it.
@@ -56,12 +56,12 @@ export default function Footer() {
         <div className="mt-16 border-t border-gray-200 dark:border-gray-800 pt-8 space-y-6">
           <div className="text-center">
             <p className="text-xs font-bold text-blue-600/60 dark:text-blue-400/60 uppercase tracking-widest">
-              Note: Quicklance is currently in a testing phase. The complete working website is under process; this version is for feedback and validation purposes only.
+              Note: Quiklance is currently in a testing phase. The complete working website is under process; this version is for feedback and validation purposes only.
             </p>
           </div>
           
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-sm font-medium text-gray-400">
-            <p>© {new Date().getFullYear()} Quicklance Inc. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Quiklance Inc. All rights reserved.</p>
             
             <button 
               onClick={toggleTheme}

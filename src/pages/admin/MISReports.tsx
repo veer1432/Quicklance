@@ -264,7 +264,7 @@ export default function MISReports() {
               <div className="p-4 rounded-2xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30">
                 <p className="text-[10px] font-bold text-red-400 dark:text-red-500 uppercase tracking-widest mb-1">No Earners</p>
                 <p className="text-2xl font-black text-red-600 dark:text-red-400">{noEarners.length}</p>
-                <p className="text-[10px] text-red-400 dark:text-red-500 mt-1">Quicklancers with 0 revenue</p>
+                <p className="text-[10px] text-red-400 dark:text-red-500 mt-1">Quiklancers with 0 revenue</p>
               </div>
               <div className="p-4 rounded-2xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800">
                 <p className="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Lowest Earners</p>

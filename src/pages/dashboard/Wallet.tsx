@@ -13,7 +13,6 @@ import { useFirebase } from '@/src/contexts/FirebaseContext';
 import { useCurrency } from '@/src/contexts/CurrencyContext';
 import { Card } from '@/src/components/ui/Card';
 import { Button } from '@/src/components/ui/Button';
-import { IS_TEST_CREDITS_MODE } from '@/src/config';
 
 export default function Wallet() {
   const { profile, processTransaction } = useFirebase();
@@ -22,13 +21,13 @@ export default function Wallet() {
   const isExpert = profile?.role === 'expert';
 
   const handleAddFunds = async () => {
-    const amount = prompt(`Enter ${IS_TEST_CREDITS_MODE ? 'test credit' : 'wallet'} amount to add (₹):`, "500");
+    const amount = prompt("Enter amount to add (₹):", "500");
     if (amount && !isNaN(Number(amount))) {
       try {
-        await processTransaction(Number(amount), 'credit', IS_TEST_CREDITS_MODE ? 'Added test credits' : 'Added funds to wallet');
-        alert(`Successfully added ${formatPrice(Number(amount))} ${IS_TEST_CREDITS_MODE ? 'in test credits' : 'to your wallet'}.`);
+        await processTransaction(Number(amount), 'credit', 'Added funds to wallet');
+        alert(`Successfully added ${formatPrice(Number(amount))} to your wallet.`);
       } catch (error) {
-        alert(`Failed to add ${IS_TEST_CREDITS_MODE ? 'test credits' : 'funds'}.`);
+        alert("Failed to add funds.");
       }
     }
   };
@@ -44,14 +43,12 @@ export default function Wallet() {
     <div className="space-y-12 transition-colors duration-300">
       <header>
         <h1 className="text-4xl font-black text-gray-900 dark:text-gray-100">
-          {IS_TEST_CREDITS_MODE ? 'Test Credits' : (isExpert ? 'Wallet & Earnings' : 'My Wallet')}
+          {isExpert ? 'Wallet & Earnings' : 'My Wallet'}
         </h1>
         <p className="mt-2 text-lg text-gray-500 dark:text-gray-400 font-medium">
           {isExpert 
-            ? 'Use test credits to validate sessions before real payments are connected.'
-            : isExpert
-              ? 'Manage your funds and track your financial growth.'
-              : 'Manage your balance and track your session payments.'}
+            ? 'Manage your funds and track your financial growth.' 
+            : 'Manage your balance and track your session payments.'}
         </p>
       </header>
 
@@ -63,7 +60,7 @@ export default function Wallet() {
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500 dark:bg-blue-800 text-white shadow-lg">
                 <WalletIcon className="h-6 w-6" />
               </div>
-              <span className="text-lg font-bold text-blue-100 dark:text-blue-200">{IS_TEST_CREDITS_MODE ? 'Available Test Credits' : 'Available Balance'}</span>
+              <span className="text-lg font-bold text-blue-100 dark:text-blue-200">Available Balance</span>
             </div>
             
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
@@ -82,9 +79,9 @@ export default function Wallet() {
                   className="h-14 px-8 text-lg rounded-2xl bg-white text-blue-600 hover:bg-blue-50 dark:bg-gray-100 dark:text-blue-900"
                 >
                   <ArrowUpRight className="mr-2 h-5 w-5" />
-                  {IS_TEST_CREDITS_MODE ? 'Add Test Credits' : 'Add Funds'}
+                  Add Funds
                 </Button>
-                {isExpert && !IS_TEST_CREDITS_MODE && (
+                {isExpert && (
                   <Button variant="outline" className="h-14 px-8 text-lg rounded-2xl border-white text-white hover:bg-blue-700 dark:hover:bg-blue-800">
                     <Download className="mr-2 h-5 w-5" />
                     Withdraw
@@ -106,13 +103,13 @@ export default function Wallet() {
               <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 mb-6">
                 <Banknote className="h-8 w-8" />
               </div>
-              <p className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{IS_TEST_CREDITS_MODE ? 'Test Earnings' : 'Lifetime Earnings'}</p>
+              <p className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Lifetime Earnings</p>
               <h3 className="mt-2 text-4xl font-black text-gray-900 dark:text-gray-100">{formatPrice(profile?.totalEarnings || 0)}</h3>
             </div>
             
             <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-bold text-gray-500 dark:text-gray-400">{IS_TEST_CREDITS_MODE ? 'Pending Test Clearance' : 'Pending Clearance'}</span>
+                <span className="font-bold text-gray-500 dark:text-gray-400">Pending Clearance</span>
                 <span className="font-black text-gray-900 dark:text-gray-100">{formatPrice(120)}</span>
               </div>
             </div>

@@ -178,14 +178,14 @@ export default function HowItWorks() {
       color: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
     },
     {
-      title: "Connect with a Quicklancer",
+      title: "Connect with a Quiklancer",
       description: "Our platform matches you with experts who specialize in your specific requirement. Review their ratings, reviews, and hourly rates before connecting.",
       icon: Zap,
       color: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
     },
     {
       title: "Secure the session",
-      description: "Pay the session fee upfront. Your money doesn't go to the Quicklancer yet—Quicklance holds it safely while you work.",
+      description: "Pay the session fee upfront. Your money doesn't go to the Quiklancer yet—Quiklance holds it safely while you work.",
       icon: ShieldCheck,
       color: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
     },
@@ -203,7 +203,7 @@ export default function HowItWorks() {
       <section className="relative py-24 overflow-hidden border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-[#111827]">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_right,#e2e8f0,transparent)] dark:bg-[radial-gradient(circle_at_top_right,#1e293b,transparent)] opacity-70" />
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-7xl">How Quicklance Works</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-7xl">How Quiklance Works</h1>
           <p className="mx-auto mt-6 max-w-2xl text-xl text-gray-600 dark:text-gray-400 font-medium">
             We've simplified the process to focus on what matters: getting your digital tasks completed fast.
           </p>
@@ -248,13 +248,13 @@ export default function HowItWorks() {
       <section className="bg-gray-50 dark:bg-[#111827] py-24 transition-colors duration-300">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Why choose Quicklance?</h2>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Why choose Quiklance?</h2>
           </div>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
             {[
               { title: "Time Efficient", desc: "No more waiting days for a freelancer to respond. Connect with experts instantly.", icon: Clock },
-              { title: "Test-Credit Sessions", desc: "Use test credits to validate live sessions while production payments are being connected.", icon: ShieldCheck },
-              { title: "Expert Vetting", desc: "We verify the skills of our Quicklancers to ensure you get high-quality assistance.", icon: Zap }
+              { title: "Secure Payments", desc: "Your payments are held in escrow and only released once you're satisfied with the fix.", icon: ShieldCheck },
+              { title: "Expert Vetting", desc: "We verify the skills of our Quiklancers to ensure you get high-quality assistance.", icon: Zap }
             ].map((feature, idx) => (
               <div key={idx} className="rounded-3xl bg-white dark:bg-[#0F172A] p-8 shadow-sm ring-1 ring-gray-100 dark:ring-gray-800 hover:ring-blue-100 dark:hover:ring-blue-900/50 hover:shadow-xl transition-all">
                 <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400">

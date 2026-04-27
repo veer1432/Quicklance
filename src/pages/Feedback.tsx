@@ -25,7 +25,7 @@ const STEPS = [
   {
     id: 'background',
     title: "Let's get to know you",
-    subtitle: 'Help us tailor Quicklance to your specific needs.',
+    subtitle: 'Help us tailor Quiklance to your specific needs.',
   },
   {
     id: 'problem',
@@ -128,7 +128,7 @@ export default function Feedback() {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white tracking-tight">You're on the list!</h1>
           <p className="text-xl text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-            Thank you for helping us build Quicklance. We'll reach out to you with your early access sessions soon.
+            Thank you for helping us build Quiklance. We'll reach out to you with your early access sessions soon.
           </p>
           <Button onClick={() => navigate('/')} className="w-full h-16 text-xl rounded-full font-bold">
             Return to Home
@@ -156,7 +156,7 @@ export default function Feedback() {
           >
             <Zap className="h-8 w-8 fill-blue-600 transition-colors" />
           </motion.div>
-          <span>Quicklance</span>
+          <span>Quiklance</span>
         </Link>
 
         <motion.button

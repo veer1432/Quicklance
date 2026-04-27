@@ -21,7 +21,7 @@ import { Card } from '@/src/components/ui/Card';
 import { Button } from '@/src/components/ui/Button';
 import { useCurrency } from '@/src/contexts/CurrencyContext';
 
-export default function QuicklancerManagement() {
+export default function QuiklancerManagement() {
   const { formatPrice } = useCurrency();
   const [searchParams, setSearchParams] = useSearchParams();
   const [experts, setExperts] = useState<UserProfile[]>([]);
@@ -67,7 +67,7 @@ export default function QuicklancerManagement() {
       else if (status === 'active') updateData.rejectionRemarks = ""; // Clear remarks on approval
 
       await updateDoc(doc(db, "users", uid), updateData);
-      alert(`Quicklancer status updated to ${status}`);
+      alert(`Quiklancer status updated to ${status}`);
     } catch (error) {
       console.error("Error updating status:", error);
       alert(`Failed to update status: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -112,7 +112,7 @@ export default function QuicklancerManagement() {
           <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           <input 
             type="text" 
-            placeholder="Search Quicklancers..." 
+            placeholder="Search Quiklancers..." 
             className="h-12 w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 pl-12 pr-4 text-sm text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:outline-none transition-all sm:w-64"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -234,7 +234,7 @@ export default function QuicklancerManagement() {
 
         {filteredExperts.length === 0 && (
           <div className="py-20 text-center bg-white dark:bg-gray-900 rounded-[3rem] border-2 border-dashed border-gray-100 dark:border-gray-800">
-            <p className="text-gray-500 dark:text-gray-400 font-medium italic">No Quicklancers found matching your criteria.</p>
+            <p className="text-gray-500 dark:text-gray-400 font-medium italic">No Quiklancers found matching your criteria.</p>
           </div>
         )}
       </div>

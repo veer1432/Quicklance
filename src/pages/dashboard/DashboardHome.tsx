@@ -24,7 +24,6 @@ import { Button } from '@/src/components/ui/Button';
 import ChatList from '@/src/components/ChatList';
 import ChatWindow from '@/src/components/ChatWindow';
 import { AnimatePresence } from 'motion/react';
-import { IS_TEST_CREDITS_MODE } from '@/src/config';
 
 export default function DashboardHome() {
   const { profile, updateProfile } = useFirebase();
@@ -44,7 +43,7 @@ export default function DashboardHome() {
     { label: 'Avg. Rating', value: profile?.rating || '5.0', icon: Star, trend: '0.0%', color: 'yellow' },
     { label: 'Active Requests', value: '3', icon: MessageSquare, trend: '-2.4%', color: 'purple' },
   ] : [
-    { label: IS_TEST_CREDITS_MODE ? 'Test Credits' : 'Wallet Balance', value: formatPrice(profile?.walletBalance || 0), icon: Wallet, trend: '0.0%', color: 'blue' },
+    { label: 'Wallet Balance', value: formatPrice(profile?.walletBalance || 0), icon: Wallet, trend: '0.0%', color: 'blue' },
     { label: 'Issues Posted', value: '12', icon: MessageSquare, trend: '+2', color: 'green' },
     { label: 'Sessions Attended', value: '8', icon: Video, trend: '+1', color: 'purple' },
     { label: 'Avg. Expert Rating', value: '4.9', icon: Star, trend: '0.0%', color: 'yellow' },
@@ -59,7 +58,7 @@ export default function DashboardHome() {
           </h1>
           <p className="mt-2 text-lg text-gray-500 dark:text-gray-400 font-medium">
             {isExpert 
-              ? "Here's what's happening with your Quicklance profile today."
+              ? "Here's what's happening with your Quiklance profile today."
               : "Manage your issues and get help from experts in real-time."}
           </p>
         </div>
@@ -270,7 +269,7 @@ export default function DashboardHome() {
                 <Button variant="secondary" className="h-16 w-full justify-start px-6 text-lg rounded-2xl" asChild>
                   <Link to="/dashboard/wallet">
                     <Wallet className="mr-3 h-6 w-6" />
-                    {IS_TEST_CREDITS_MODE ? 'Add Test Credits' : 'Add Funds'}
+                    Add Funds
                   </Link>
                 </Button>
                 <Button variant="outline" className="h-16 w-full justify-start px-6 text-lg rounded-2xl" asChild>
@@ -291,9 +290,7 @@ export default function DashboardHome() {
             <p className="text-sm text-blue-100 dark:text-blue-200 leading-relaxed">
               {isExpert 
                 ? 'Experts who update their availability daily receive 40% more requests. Keep your calendar fresh!'
-                : IS_TEST_CREDITS_MODE
-                  ? 'Add test credits to validate the session flow before real payments are connected.'
-                  : 'Add funds to your wallet to instantly connect with experts when you have an urgent issue.'}
+                : 'Add funds to your wallet to instantly connect with experts when you have an urgent issue.'}
             </p>
           </Card>
         </div>

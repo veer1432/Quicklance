@@ -46,7 +46,7 @@ export default function Navbar() {
             >
               <Zap className="h-8 w-8 fill-blue-600 transition-colors" />
             </motion.div>
-            <span className="text-gray-900 dark:text-white font-bold">Quicklance</span>
+            <span className="text-gray-900 dark:text-white font-bold">Quiklance</span>
           </Link>
           
           <div className="hidden md:flex items-center gap-6">
@@ -109,7 +109,7 @@ export default function Navbar() {
                     className="text-sm font-bold text-blue-600 hover:text-blue-700 flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-xl transition-all border border-blue-100"
                   >
                     <Zap className="h-4 w-4" />
-                    Quicklancer Panel
+                    Quiklancer Panel
                   </Link>
                 </motion.div>
               ) : (
@@ -159,10 +159,10 @@ export default function Navbar() {
               </Link>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Link 
-                  to="/become-quicklancer"
+                  to="/become-quiklancer"
                   className="rounded-full bg-blue-600 px-6 py-2 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
                 >
-                  Become a Quicklancer
+                  Become a Quiklancer
                 </Link>
               </motion.div>
             </div>
@@ -229,7 +229,7 @@ export default function Navbar() {
                   ) : (
                     <>
                       <Link to="/login" className="block w-full rounded-full border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 py-4 text-center font-bold text-gray-600 dark:text-gray-400">Client Login</Link>
-                      <Link to="/become-quicklancer" className="block w-full rounded-full bg-blue-600 py-4 text-center font-bold text-white shadow-xl shadow-blue-500/20">Become a Quicklancer</Link>
+                      <Link to="/become-quiklancer" className="block w-full rounded-full bg-blue-600 py-4 text-center font-bold text-white shadow-xl shadow-blue-500/20">Become a Quiklancer</Link>
                     </>
                   )}
                 </div>

@@ -25,14 +25,14 @@ import { useCurrency } from '@/src/contexts/CurrencyContext';
 export default function AdminDashboard() {
   const { formatPrice } = useCurrency();
   const [stats, setStats] = useState({
-    totalQuicklancers: 0,
+    totalQuiklancers: 0,
     pendingApprovals: 0,
     activeCalls: 0,
     totalEarnings: 0,
     totalConnects: 0,
     avgCallTime: 0,
   });
-  const [recentQuicklancers, setRecentQuicklancers] = useState<UserProfile[]>([]);
+  const [recentQuiklancers, setRecentQuiklancers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
 
   const formatDate = (date: any) => {
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
         const expertsSnap = await getDocs(expertsQuery);
         const experts = expertsSnap.docs.map(doc => doc.data() as UserProfile);
 
-        const totalQuicklancers = experts.length;
+        const totalQuiklancers = experts.length;
         const pendingApprovals = experts.filter(e => e.status === 'pending').length;
         const totalEarnings = experts.reduce((sum, e) => sum + (e.totalEarnings || 0), 0);
         const totalConnects = experts.reduce((sum, e) => sum + (e.totalCalls || 0), 0);
@@ -60,7 +60,7 @@ export default function AdminDashboard() {
         const avgCallTime = totalConnects > 0 ? Math.round(totalCallTime / totalConnects) : 0;
 
         setStats({
-          totalQuicklancers,
+          totalQuiklancers,
           pendingApprovals,
           activeCalls: 5, // Mock for now
           totalEarnings,
@@ -68,7 +68,7 @@ export default function AdminDashboard() {
           avgCallTime,
         });
 
-        // Recent Quicklancers
+        // Recent Quiklancers
         const recentQuery = query(
           collection(db, 'users'), 
           where('role', '==', 'expert'),
@@ -76,7 +76,7 @@ export default function AdminDashboard() {
           limit(5)
         );
         const recentSnap = await getDocs(recentQuery);
-        setRecentQuicklancers(recentSnap.docs.map(doc => ({ ...doc.data(), uid: doc.id } as UserProfile)));
+        setRecentQuiklancers(recentSnap.docs.map(doc => ({ ...doc.data(), uid: doc.id } as UserProfile)));
 
       } catch (error) {
         console.error('Error fetching admin stats:', error);
@@ -89,7 +89,7 @@ export default function AdminDashboard() {
   }, []);
 
   const statCards = [
-    { label: 'Total Quicklancers', value: stats.totalQuicklancers, icon: Users, color: 'blue', trend: '+12%' },
+    { label: 'Total Quiklancers', value: stats.totalQuiklancers, icon: Users, color: 'blue', trend: '+12%' },
     { label: 'Pending Approvals', value: stats.pendingApprovals, icon: UserCheck, color: 'yellow', trend: 'High Priority' },
     { label: 'Total Connects', value: stats.totalConnects, icon: Video, color: 'green', trend: '+8%' },
     { label: 'Market Feedback', value: 'View Responses', icon: MessageSquare, color: 'blue', isLink: true, link: '/admin/feedback' },
@@ -154,7 +154,7 @@ export default function AdminDashboard() {
           </div>
           
           <div className="space-y-4">
-            {recentQuicklancers.map((expert) => (
+            {recentQuiklancers.map((expert) => (
               <Card key={expert.uid} className="p-6" hover={false}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -181,7 +181,7 @@ export default function AdminDashboard() {
                       {expert.status || 'active'}
                     </span>
                     <Button variant="secondary" size="sm" asChild>
-                      <Link to={`/admin/quicklancers?filter=${expert.status === 'pending' ? 'pending' : 'all'}&search=${expert.displayName}`}>
+                      <Link to={`/admin/quiklancers?filter=${expert.status === 'pending' ? 'pending' : 'all'}&search=${expert.displayName}`}>
                         Review
                       </Link>
                     </Button>
@@ -201,14 +201,14 @@ export default function AdminDashboard() {
                 <AlertTriangle className="h-5 w-5 shrink-0" />
                 <div className="text-sm">
                   <p className="font-bold">New Complaint Received</p>
-                  <p className="mt-1 opacity-80">Client reported bad behavior from Quicklancer #1293.</p>
+                  <p className="mt-1 opacity-80">Client reported bad behavior from Quiklancer #1293.</p>
                 </div>
               </div>
               <div className="flex items-start gap-3 rounded-2xl bg-yellow-50 dark:bg-yellow-900/20 p-4 text-yellow-700 dark:text-yellow-400">
                 <Clock className="h-5 w-5 shrink-0" />
                 <div className="text-sm">
                   <p className="font-bold">Pending Approvals</p>
-                  <p className="mt-1 opacity-80">12 Quicklancers are waiting for profile verification.</p>
+                  <p className="mt-1 opacity-80">12 Quiklancers are waiting for profile verification.</p>
                 </div>
               </div>
             </div>

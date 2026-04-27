@@ -95,8 +95,8 @@ export default function Experts() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 sm:text-5xl">Quicklancers</h1>
-            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">Find the right Quicklancer to unblock your project right now.</p>
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100 sm:text-5xl">Quiklancers</h1>
+            <p className="mt-4 text-lg text-gray-600 dark:text-gray-400">Find the right Quiklancer to unblock your project right now.</p>
           </div>
           
           <div className="flex flex-col gap-4 sm:flex-row">
@@ -150,8 +150,8 @@ export default function Experts() {
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
               <Lock className="h-10 w-10" />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Sign in to view Quicklancers</h3>
-            <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">To protect our Quicklancers' privacy and ensure secure connections, you need to be signed in to browse and book Quicklancers.</p>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Sign in to view Quiklancers</h3>
+            <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">To protect our Quiklancers' privacy and ensure secure connections, you need to be signed in to browse and book Quiklancers.</p>
             <Button onClick={signIn} size="lg" className="mt-8 h-14 px-10 text-lg rounded-2xl shadow-xl shadow-blue-200 dark:shadow-blue-900/40">
               Sign in with Google
             </Button>
@@ -226,7 +226,7 @@ export default function Experts() {
                   <div className="mb-4">
                     <Link to={`/expert/${expert.uid}`} className="text-xl font-bold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors block">{expert.displayName}</Link>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      {expert.role === 'expert' ? 'Technical Quicklancer' : expert.role}
+                      {expert.role === 'expert' ? 'Technical Quiklancer' : expert.role}
                       {expert.experience && expert.experience.length > 0 && ` • ${expert.experience.length} Exp.`}
                     </p>
                   </div>
@@ -292,7 +292,7 @@ export default function Experts() {
             <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-500">
               <Search className="h-10 w-10" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">No Quicklancers found</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">No Quiklancers found</h3>
             <p className="mt-2 text-gray-500 dark:text-gray-400">Try adjusting your search or filters to find what you're looking for.</p>
             <button 
               onClick={() => { setSearch(""); setSelectedCategory("All"); }}

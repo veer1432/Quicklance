@@ -17,7 +17,6 @@ import { Dispute, Session, UserProfile } from '@/src/types';
 import { Card } from '@/src/components/ui/Card';
 import { Button } from '@/src/components/ui/Button';
 import { useCurrency } from '@/src/contexts/CurrencyContext';
-import { IS_TEST_CREDITS_MODE } from '@/src/config';
 
 export default function DisputeManagement() {
   const { formatPrice } = useCurrency();
@@ -240,7 +239,7 @@ export default function DisputeManagement() {
                       <h4 className="font-bold text-orange-900 dark:text-orange-100">Admin Decision</h4>
                     </div>
                     <p className="text-sm text-orange-700 dark:text-orange-300 font-medium mb-6">
-                      Evaluate the recording. If the expert provided a satisfactory solution, release the {IS_TEST_CREDITS_MODE ? 'test credits' : 'payment'}. Otherwise, refund the client.
+                      Evaluate the recording. If the expert provided a satisfactory solution, release the payment. Otherwise, refund the client.
                     </p>
                     
                     <div className="space-y-3">

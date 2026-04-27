@@ -59,7 +59,7 @@ export default function ChatList({ onSelectRoom }: ChatListProps) {
           <MessageSquare className="h-8 w-8" />
         </div>
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">No messages yet</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Start a chat with a Quicklancer to discuss your issues.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Start a chat with a Quiklancer to discuss your issues.</p>
       </div>
     );
   }

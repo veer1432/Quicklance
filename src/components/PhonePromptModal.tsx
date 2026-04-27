@@ -59,7 +59,7 @@ export default function PhonePromptModal() {
 
             <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">Complete your profile</h2>
             <p className="mt-2 text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-              Please provide your mobile number to receive important updates and exclusive offers from Quicklance.
+              Please provide your mobile number to receive important updates and exclusive offers from Quiklance.
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
