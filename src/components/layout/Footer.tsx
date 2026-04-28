@@ -51,6 +51,15 @@ export default function Footer() {
               <li><Link to="/category/seo" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">SEO & Marketing</Link></li>
             </ul>
           </div>
+
+          <div>
+            <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white leading-none">Support</h3>
+            <ul className="space-y-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+              <li><Link to="/refund-policy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Refund Policy</Link></li>
+              <li><Link to="/feedback" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Feedback</Link></li>
+              <li><a href="mailto:support@quiklance.com" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Contact Support</a></li>
+            </ul>
+          </div>
         </div>
 
         <div className="mt-16 border-t border-gray-200 dark:border-gray-800 pt-8 space-y-6">

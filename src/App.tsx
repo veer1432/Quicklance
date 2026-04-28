@@ -22,6 +22,7 @@ import Calendar from "./pages/dashboard/Calendar";
 import PhonePromptModal from "./components/PhonePromptModal";
 import SessionManager from "./components/SessionManager";
 import ResolutionCenter from "./components/ResolutionCenter";
+import RefundPolicy from "./pages/RefundPolicy";
 
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -89,6 +90,7 @@ function AppContent() {
                     <Route path="/expert/:id" element={FEEDBACK_MODE ? <Navigate to="/" /> : <ExpertProfile />} />
                     <Route path="/post-issue" element={FEEDBACK_MODE ? <Navigate to="/" /> : <PostIssue />} />
                     <Route path="/how-it-works" element={<HowItWorks />} />
+                    <Route path="/refund-policy" element={<RefundPolicy />} />
                     <Route path="/category/:category" element={FEEDBACK_MODE ? <Navigate to="/" /> : <Experts />} />
                   </Routes>
                 </main>
