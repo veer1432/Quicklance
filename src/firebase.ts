@@ -16,7 +16,10 @@ import {
 } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import localConfig from '../firebase-applet-config.json';
+
+// Safely attempt to load local config if it exists
+const configs = import.meta.glob('../firebase-applet-config.json', { eager: true });
+const localConfig = (Object.values(configs)[0] as any)?.default || {};
 
 // Use environment variables if available, otherwise fallback to local config file
 const firebaseConfig = {
@@ -29,6 +32,10 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || (localConfig ? localConfig.measurementId : ''),
   firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || (localConfig ? localConfig.firestoreDatabaseId : '(default)')
 };
+
+if (!firebaseConfig.apiKey) {
+  console.warn("Firebase API Key is missing. Please check your firebase-applet-config.json or set VITE_FIREBASE_API_KEY in the Secrets panel.");
+}
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
