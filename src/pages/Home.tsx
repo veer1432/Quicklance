@@ -82,14 +82,26 @@ export default function Home() {
             
             <motion.div 
               variants={itemVariants}
-              className="mt-12 flex flex-col items-center gap-4 sm:flex-row"
+              className="mt-12 flex flex-col items-center gap-4 sm:flex-row w-full max-w-2xl"
             >
-              <Button asChild size="lg" className="h-16 px-10 text-lg shadow-2xl shadow-blue-100">
-                <Link to={FEEDBACK_MODE ? "/feedback" : "/post-issue"} className="flex items-center gap-2">
-                  {FEEDBACK_MODE ? "Join the Waitlist" : "Clear a Task Now"}
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
+              <div className="relative w-full group">
+                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                <input 
+                  type="text" 
+                  placeholder="What task do you want to clear? (e.g. GST, SEO, Wix fix)" 
+                  className="w-full h-20 pl-16 pr-48 rounded-[2rem] border-2 border-transparent bg-white dark:bg-[#1e293b] text-xl text-gray-900 dark:text-white shadow-2xl shadow-blue-100 dark:shadow-none focus:border-blue-600 focus:outline-none transition-all placeholder:text-gray-400"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      window.location.href = `/category/all?q=${encodeURIComponent(e.currentTarget.value)}`;
+                    }
+                  }}
+                />
+                <Button className="absolute right-3 top-3 bottom-3 px-8 rounded-2xl text-lg hidden sm:flex" asChild>
+                  <Link to="/post-issue">
+                    Go
+                  </Link>
+                </Button>
+              </div>
             </motion.div>
 
             <motion.div 

@@ -12,9 +12,12 @@ import { useCurrency } from "@/src/contexts/CurrencyContext";
 
 export default function Experts() {
   const { category } = useParams();
+  const searchParams = new URLSearchParams(window.location.search);
+  const initialSearch = searchParams.get("q") || "";
+  
   const { user, signIn, loading: authLoading } = useFirebase();
   const { formatPrice } = useCurrency();
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [experts, setExperts] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,19 +31,13 @@ export default function Experts() {
   }, [category]);
 
   useEffect(() => {
-    if (!user) {
-      setExperts([]);
-      setLoading(false);
-      return;
-    }
-
     setLoading(true);
     const path = "users";
     const q = query(
       collection(db, path),
       where("role", "==", "expert"),
       where("status", "==", "active"),
-      limit(50) // Increased limit to get more skills
+      limit(50)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -51,7 +48,6 @@ export default function Experts() {
       
       setExperts(expertsData);
       
-      // Extract unique skills and combine with base CATEGORIES
       const skills = new Set<string>(CATEGORIES);
       expertsData.forEach(expert => {
         expert.skills?.forEach(skill => {
@@ -59,19 +55,17 @@ export default function Experts() {
         });
       });
       
-      // Sort and limit to top categories to keep UI clean
       setDynamicCategories(Array.from(skills).sort());
-      
       setLoading(false);
     }, (error) => {
-      if (user) {
-        handleFirestoreError(error, OperationType.LIST, path);
-      }
+      // We don't necessarily handleFirestoreError if they are unauthenticated and listing public data
+      // but security rules should allow reading public expert profiles.
+      console.error("Expert fetch error:", error);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [user]);
+  }, []);
 
 
   const filteredExperts = experts.filter(expert => {
@@ -141,22 +135,7 @@ export default function Experts() {
         </div>
 
         {/* Experts Grid */}
-        {!user && !authLoading ? (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="py-20 text-center bg-white dark:bg-gray-900 rounded-[3rem] border-2 border-dashed border-gray-200 dark:border-gray-800 shadow-sm"
-          >
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400">
-              <Lock className="h-10 w-10" />
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Sign in to view Quiklancers</h3>
-            <p className="mt-2 text-gray-500 dark:text-gray-400 max-w-md mx-auto">To protect our Quiklancers' privacy and ensure secure connections, you need to be signed in to browse and book Quiklancers.</p>
-            <Button onClick={signIn} size="lg" className="mt-8 h-14 px-10 text-lg rounded-2xl shadow-xl shadow-blue-200 dark:shadow-blue-900/40">
-              Sign in with Google
-            </Button>
-          </motion.div>
-        ) : loading || authLoading ? (
+        {loading || authLoading ? (
           <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i} className="h-96 animate-pulse rounded-[2.5rem] bg-gray-200 dark:bg-gray-800" />
@@ -254,18 +233,21 @@ export default function Experts() {
 
                   <div className="mt-auto space-y-3">
                     {expert.isAvailable !== false ? (
-                      <Button variant="success" className="w-full h-12 rounded-xl shadow-lg shadow-green-100 dark:shadow-green-900/20" asChild>
-                        <Link to={`/expert/${expert.uid}`}>
-                          <Phone className="h-4 w-4 mr-2" />
-                          Call Now
-                        </Link>
+                      <Button 
+                        variant="success" 
+                        className="w-full h-12 rounded-xl shadow-lg shadow-green-100 dark:shadow-green-900/20" 
+                        onClick={() => !user ? signIn() : window.location.href = `/expert/${expert.uid}`}
+                      >
+                        <Phone className="h-4 w-4 mr-2" />
+                        {!user ? "Sign in to Call" : "Call Now"}
                       </Button>
                     ) : (
-                      <Button className="w-full h-12 rounded-xl shadow-lg shadow-blue-100 dark:shadow-blue-900/20" asChild>
-                        <Link to={`/expert/${expert.uid}`}>
-                          <Calendar className="h-4 w-4 mr-2" />
-                          Schedule Session
-                        </Link>
+                      <Button 
+                        className="w-full h-12 rounded-xl shadow-lg shadow-blue-100 dark:shadow-blue-900/20"
+                        onClick={() => !user ? signIn() : window.location.href = `/expert/${expert.uid}`}
+                      >
+                        <Calendar className="h-4 w-4 mr-2" />
+                        {!user ? "Sign in to Schedule" : "Schedule Session"}
                       </Button>
                     )}
                     <div className="flex gap-3">
@@ -274,7 +256,7 @@ export default function Experts() {
                           View Profile
                         </Link>
                       </Button>
-                      <Button variant="secondary" className="px-4 h-11 rounded-xl">
+                      <Button variant="secondary" className="px-4 h-11 rounded-xl" onClick={() => !user && signIn()}>
                         <MessageSquare className="h-5 w-5" />
                       </Button>
                     </div>
