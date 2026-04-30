@@ -12,7 +12,8 @@ import {
   Zap,
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  Ticket
 } from 'lucide-react';
 import { useFirebase } from '@/src/contexts/FirebaseContext';
 import { useTheme } from '@/src/contexts/ThemeContext';
@@ -44,6 +45,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: Wallet, label: 'Wallet & Earnings', path: '/dashboard/wallet' },
     { icon: Calendar, label: 'Availability', path: '/dashboard/calendar' },
     { icon: MessageSquare, label: 'Requests', path: '/dashboard/requests' },
+    { icon: Ticket, label: 'Tickets & Disputes', path: '/dashboard/tickets' },
     { icon: BarChart3, label: 'Analytics & MIS', path: '/dashboard/analytics' },
   ];
 
@@ -51,6 +53,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
     { icon: UserCircle, label: 'My Profile', path: '/dashboard/profile' },
     { icon: Wallet, label: 'My Wallet', path: '/dashboard/wallet' },
+    { icon: Ticket, label: 'Tickets & Disputes', path: '/dashboard/tickets' },
     { icon: MessageSquare, label: 'My Issues', path: '/dashboard/requests' },
   ];
 

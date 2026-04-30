@@ -169,6 +169,8 @@ export interface Dispute {
   expertId: string;
   status: 'open' | 'resolved-released' | 'resolved-refunded';
   adminNotes?: string;
+  adminResolution?: string;
+  resolvedAt?: any;
   createdAt: string;
   updatedAt: string;
 }

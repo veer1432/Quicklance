@@ -60,7 +60,7 @@
         "clientId": { "type": "string" },
         "expertId": { "type": "string" },
         "issueId": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "active", "completed", "cancelled"] },
+        "status": { "type": "string", "enum": ["pending", "active", "completed", "cancelled", "dispute", "resolved", "not-resolved-mutual"] },
         "startTime": { "type": "string", "format": "date-time" },
         "endTime": { "type": "string", "format": "date-time" },
         "durationMinutes": { "type": "integer" },
@@ -70,10 +70,31 @@
         "extensionCount": { "type": "integer" },
         "lastAlertTime": { "type": "string", "format": "date-time" },
         "meetingLink": { "type": "string" },
+        "clientResolution": { "type": "string", "enum": ["resolved", "not-resolved"] },
+        "expertResolution": { "type": "string", "enum": ["resolved", "not-resolved"] },
+        "adminDecision": { "type": "string", "enum": ["released", "refunded"] },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["clientId", "expertId", "status", "startTime", "durationMinutes", "basePrice", "totalPaid", "createdAt", "updatedAt"]
+    },
+    "Dispute": {
+      "title": "Dispute",
+      "description": "A dispute raised for a session.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sessionId": { "type": "string" },
+        "clientId": { "type": "string" },
+        "expertId": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "resolved-released", "resolved-refunded"] },
+        "adminNotes": { "type": "string" },
+        "adminResolution": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "resolvedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sessionId", "clientId", "expertId", "status", "createdAt", "updatedAt"]
     },
     "ChatRoom": {
       "title": "Chat Room",
@@ -149,6 +170,10 @@
     "/sessions/{sessionId}": {
       "schema": "Session",
       "description": "Live support sessions."
+    },
+    "/disputes/{disputeId}": {
+      "schema": "Dispute",
+      "description": "Session disputes and resolution tickets."
     },
     "/users/{uid}/transactions/{txId}": {
       "schema": "object",

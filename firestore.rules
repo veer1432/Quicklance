@@ -30,10 +30,17 @@ service cloud.firestore {
     function isValidSession(data) {
       return data.clientId is string &&
              data.expertId is string &&
-             data.status in ['pending', 'active', 'completed', 'cancelled'] &&
+             data.status in ['pending', 'active', 'completed', 'cancelled', 'dispute', 'resolved', 'not-resolved-mutual'] &&
              data.durationMinutes is number &&
-             data.basePrice is number &&
              data.totalPaid is number;
+    }
+
+    function isValidDispute(data) {
+      return data.sessionId is string &&
+             data.clientId is string &&
+             data.expertId is string &&
+             data.status in ['open', 'resolved-released', 'resolved-refunded'] &&
+             data.createdAt is string;
     }
 
     match /users/{userId} {
@@ -42,8 +49,8 @@ service cloud.firestore {
       allow update: if isOwner(userId) || isAdmin();
 
       match /transactions/{txId} {
-        allow read: if isOwner(userId);
-        allow create: if isOwner(userId);
+        allow read: if isOwner(userId) || isAdmin();
+        allow create: if isOwner(userId) || isAdmin();
       }
     }
 
@@ -51,6 +58,12 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId || isAdmin());
       allow create: if isAuthenticated() && (request.auth.uid == request.resource.data.clientId || isAdmin()) && isValidSession(request.resource.data);
       allow update: if isAuthenticated() && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId || isAdmin());
+    }
+
+    match /disputes/{disputeId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.clientId || request.auth.uid == resource.data.expertId || isAdmin());
+      allow create: if isAuthenticated() && (request.auth.uid == request.resource.data.expertId || isAdmin()) && isValidDispute(request.resource.data);
+      allow update: if isAdmin();
     }
 
     match /issues/{issueId} {

@@ -39,15 +39,20 @@ export default function SessionManager() {
         updatedAt: serverTimestamp(),
       });
       
+      // Clear meeting and active session state immediately
+      setShowAlert(false);
+      setShowMeeting(false);
+      
       // If client, show feedback modal
       if (profile?.role === 'client') {
         setFeedbackSessionId(sessionId);
         setShowFeedback(true);
+      } else if (profile?.role === 'expert') {
+        // Show a brief success message for expert
+        alert("Session completed. The client will now confirm resolution.");
       }
       
       setActiveSession(null);
-      setShowAlert(false);
-      setShowMeeting(false);
     } catch (error) {
       handleFirestoreError(error, OperationType.UPDATE, `sessions/${sessionId}`);
     }

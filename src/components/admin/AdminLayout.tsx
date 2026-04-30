@@ -58,6 +58,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Overview', path: '/admin' },
+    { icon: ShieldCheck, label: 'Expert Vetting', path: '/admin/vetting' },
     { icon: MessageSquare, label: 'Market Feedback', path: '/admin/feedback' },
     { icon: UserCheck, label: 'Quiklancer Approval', path: '/admin/approvals' },
     { icon: Users, label: 'Manage Quiklancers', path: '/admin/quiklancers' },

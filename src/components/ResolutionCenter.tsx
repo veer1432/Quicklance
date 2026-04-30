@@ -19,7 +19,7 @@ import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 
 export default function ResolutionCenter() {
-  const { user, profile, processTransaction } = useFirebase();
+  const { user, profile } = useFirebase();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [showConfirmModal, setShowConfirmModal] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -28,6 +28,8 @@ export default function ResolutionCenter() {
     if (!user || !profile) return;
 
     // Listen for sessions that need resolution
+    // We only show resolution prompts for sessions that just ended (completed) 
+    // or those in dispute where one party hasn't responded.
     const q = query(
       collection(db, 'sessions'),
       where('status', 'in', ['completed', 'dispute']),
@@ -35,7 +37,17 @@ export default function ResolutionCenter() {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setSessions(snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Session)));
+      const docs = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Session));
+      // Filter out sessions that already have the current user's resolution
+      const pendingDocs = docs.filter(s => {
+        if (profile.role === 'client') return !s.clientResolution;
+        if (profile.role === 'expert') {
+          // Expert only needs to resolve if client said 'not-resolved' OR if it was already marked as dispute
+          return s.clientResolution === 'not-resolved' && !s.expertResolution;
+        }
+        return false;
+      });
+      setSessions(pendingDocs);
     }, (error) => {
       handleFirestoreError(error, OperationType.GET, 'sessions');
     });
@@ -47,6 +59,8 @@ export default function ResolutionCenter() {
     setIsProcessing(true);
     try {
       const sessionRef = doc(db, 'sessions', sessionId);
+      const session = sessions.find(s => s.id === sessionId);
+      if (!session) return;
       
       if (profile?.role === 'client') {
         if (resolved) {
@@ -57,20 +71,8 @@ export default function ResolutionCenter() {
             updatedAt: serverTimestamp()
           });
           
-          // Release payment logic (simplified for demo)
-          // In a real app, this would trigger the Razorpay release
-          const session = sessions.find(s => s.id === sessionId);
-          if (session) {
-            const commission = session.totalPaid * 0.2; // 20% platform commission
-            const expertEarnings = session.totalPaid - commission;
-            
-            // Update expert wallet (this should be a cloud function)
-            const expertRef = doc(db, 'users', session.expertId);
-            await updateDoc(expertRef, {
-              totalEarnings: (profile?.totalEarnings || 0) + expertEarnings,
-              walletBalance: (profile?.walletBalance || 0) + expertEarnings
-            });
-          }
+          // In a real app, we would release escrow here.
+          // For now, we update expert's pending earnings if we had a dedicated field.
         } else {
           // NO, ISSUE NOT RESOLVED
           await updateDoc(sessionRef, {
@@ -87,10 +89,10 @@ export default function ResolutionCenter() {
             updatedAt: serverTimestamp()
           });
           
-          // Create Dispute Ticket
+          // Create Dispute Ticket for Admin
           await addDoc(collection(db, 'disputes'), {
             sessionId,
-            clientId: sessions.find(s => s.id === sessionId)?.clientId,
+            clientId: session.clientId,
             expertId: user?.uid,
             status: 'open',
             createdAt: new Date().toISOString(),
@@ -103,15 +105,6 @@ export default function ResolutionCenter() {
             expertResolution: 'not-resolved',
             updatedAt: serverTimestamp()
           });
-          
-          // Refund Client logic (simplified for demo)
-          const session = sessions.find(s => s.id === sessionId);
-          if (session) {
-            const clientRef = doc(db, 'users', session.clientId);
-            await updateDoc(clientRef, {
-              walletBalance: (profile?.walletBalance || 0) + session.totalPaid
-            });
-          }
         }
       }
       setShowConfirmModal(null);
@@ -125,129 +118,83 @@ export default function ResolutionCenter() {
   if (sessions.length === 0) return null;
 
   return (
-    <div className="fixed bottom-24 right-8 z-[50] flex flex-col gap-4 max-w-sm w-full">
-      <AnimatePresence>
+    <div className="fixed inset-0 z-[90] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-gray-950/60 backdrop-blur-md"
+      />
+      
+      <AnimatePresence mode="wait">
         {sessions.map((session) => {
           const isClient = profile?.role === 'client';
-          const isExpert = profile?.role === 'expert';
           
-          // Client needs to confirm resolution
-          if (isClient && session.status === 'completed' && !session.clientResolution) {
-            return (
-              <motion.div
-                key={session.id}
-                initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 50, scale: 0.9 }}
-              >
-                <Card className="p-6 border-2 border-blue-100 dark:border-blue-900/30 shadow-2xl bg-white dark:bg-gray-900">
-                  <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center shrink-0">
-                      <ShieldCheck className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-black text-gray-900 dark:text-gray-100">Confirm Resolution</h4>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">Session {session.id.slice(-6)} has ended. Was your issue resolved?</p>
-                      <div className="flex gap-2 mt-4">
-                        <Button 
-                          size="sm" 
-                          onClick={() => setShowConfirmModal(session.id)}
-                          className="bg-green-600 hover:bg-green-700 text-white text-[10px] uppercase font-black tracking-widest"
-                        >
-                          Yes, Resolved
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleResolution(session.id, false)}
-                          className="text-red-600 border-red-100 text-[10px] uppercase font-black tracking-widest"
-                        >
-                          No
-                        </Button>
-                      </div>
-                    </div>
+          return (
+            <motion.div
+              key={session.id}
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -30 }}
+              className="relative w-full max-w-lg overflow-hidden rounded-[3rem] bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-2xl"
+            >
+              <div className="p-8 md:p-12">
+                <div className="flex justify-center mb-8">
+                  <div className={`h-24 w-24 rounded-[2rem] flex items-center justify-center overflow-hidden ${
+                    isClient ? 'bg-blue-50 text-blue-600' : 'bg-red-50 text-red-600'
+                  }`}>
+                    {isClient ? <ShieldCheck className="h-12 w-12" /> : <ShieldAlert className="h-12 w-12" />}
                   </div>
-                </Card>
-              </motion.div>
-            );
-          }
+                </div>
 
-          // Expert needs to respond if client said no
-          if (isExpert && session.status === 'completed' && session.clientResolution === 'not-resolved' && !session.expertResolution) {
-            return (
-              <motion.div
-                key={session.id}
-                initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 50, scale: 0.9 }}
-              >
-                <Card className="p-6 border-2 border-red-100 dark:border-red-900/30 shadow-2xl bg-white dark:bg-gray-900">
-                  <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 flex items-center justify-center shrink-0">
-                      <AlertTriangle className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-black text-gray-900 dark:text-gray-100">Resolution Dispute</h4>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium">The client marked the issue as NOT resolved. What is your status?</p>
-                      <div className="flex gap-2 mt-4">
-                        <Button 
-                          size="sm" 
-                          onClick={() => handleResolution(session.id, true)}
-                          className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] uppercase font-black tracking-widest"
-                        >
-                          It was Resolved
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => handleResolution(session.id, false)}
-                          className="text-gray-600 border-gray-100 text-[10px] uppercase font-black tracking-widest"
-                        >
-                          Not Resolved
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            );
-          }
+                <div className="text-center space-y-4">
+                  <h2 className="text-3xl font-black text-gray-900 dark:text-gray-100 italic tracking-tight">
+                    Post-Session Resolution
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium text-lg leading-relaxed">
+                    {isClient 
+                      ? "Your live session has ended. To ensure fair payment and quality service, please confirm if your issue was resolved."
+                      : "The client marked the issue as NOT resolved. If you believe you successfully fixed the issue, you can raise a dispute for admin review."
+                    }
+                  </p>
+                </div>
 
-          // Dispute Status
-          if (session.status === 'dispute') {
-            return (
-              <motion.div
-                key={session.id}
-                initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 50, scale: 0.9 }}
-              >
-                <Card className="p-6 border-2 border-orange-100 dark:border-orange-900/30 shadow-2xl bg-white dark:bg-gray-900">
-                  <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-orange-50 dark:bg-orange-900/20 text-orange-600 flex items-center justify-center shrink-0">
-                      <ShieldAlert className="h-6 w-6" />
-                    </div>
-                    <div>
-                      <h4 className="font-black text-gray-900 dark:text-gray-100">Under Review</h4>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium leading-relaxed">
-                        This session has been marked as disputed. The Quiklance team will review the recording and resolve within 48 hours.
-                      </p>
-                      <div className="flex items-center gap-2 mt-3 text-[10px] font-bold text-orange-600 uppercase tracking-widest">
-                        <Clock className="h-3 w-3" />
-                        Est. Resolution: 48h
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            );
-          }
+                <div className="mt-12 grid grid-cols-2 gap-4">
+                  <Button
+                    onClick={() => isClient ? setShowConfirmModal(session.id) : handleResolution(session.id, true)}
+                    disabled={isProcessing}
+                    className={`h-16 rounded-2xl text-lg font-black uppercase tracking-wider ${
+                      isClient ? 'bg-blue-600 hover:bg-blue-700' : 'bg-red-600 hover:bg-red-700'
+                    }`}
+                  >
+                    {isClient ? "Resolved" : "Raise Dispute"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleResolution(session.id, false)}
+                    disabled={isProcessing}
+                    className="h-16 rounded-2xl text-lg font-black uppercase tracking-wider border-2"
+                  >
+                    {isClient ? "Not Resolved" : "Accept Refund"}
+                  </Button>
+                </div>
 
-          return null;
+                <div className="mt-8 flex items-start gap-3 p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                  <Info className="h-5 w-5 text-gray-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 font-medium italic">
+                    {isClient 
+                      ? "If you select 'Not Resolved', the Quiklancer will have a chance to accept a mutual refund or raise a dispute for manual review."
+                      : "Selecting 'Accept Refund' will immediately return the session funds to the client. Choosing 'Raise Dispute' sends the session recording to Quiklance Admin for final judgment."
+                    }
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          );
         })}
       </AnimatePresence>
 
-      {/* Confirmation Modal for Client */}
+      {/* Internal Confirmation Modal for releasing payment */}
       <AnimatePresence>
         {showConfirmModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -255,7 +202,7 @@ export default function ResolutionCenter() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-gray-950/80 backdrop-blur-md"
+              className="absolute inset-0 bg-gray-950/80 backdrop-blur-xl"
               onClick={() => setShowConfirmModal(null)}
             />
             <motion.div
@@ -264,23 +211,22 @@ export default function ResolutionCenter() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="relative w-full max-w-md overflow-hidden rounded-[2.5rem] bg-white dark:bg-gray-900 p-8 shadow-2xl"
             >
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600">
-                <Info className="h-8 w-8" />
+              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-50 dark:bg-green-900/20 text-green-600">
+                <CheckCircle2 className="h-8 w-8" />
               </div>
 
-              <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Confirm Resolution</h2>
+              <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100 tracking-tight">Confirm Payment Release</h2>
               <p className="mt-4 text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
-                Please confirm: Are you satisfied that your issue has been fully resolved? 
-                <span className="block mt-2 font-bold text-red-500">Once confirmed, the payment will be released to the Quiklancer and cannot be reversed.</span>
+                Thank you! Once you confirm, the session funds will be released to the Quiklancer. This action cannot be undone.
               </p>
 
               <div className="mt-8 space-y-4">
                 <Button
                   onClick={() => handleResolution(showConfirmModal, true)}
                   disabled={isProcessing}
-                  className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-blue-100 dark:shadow-blue-900/40"
+                  className="w-full h-14 rounded-2xl text-lg font-black bg-green-600 hover:bg-green-700 shadow-xl shadow-green-100 dark:shadow-green-900/20"
                 >
-                  {isProcessing ? 'Processing...' : 'YES, ISSUE RESOLVED'}
+                  {isProcessing ? 'Processing...' : 'CONFIRM & RELEASE'}
                 </Button>
                 <Button
                   variant="outline"

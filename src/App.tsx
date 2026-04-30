@@ -19,6 +19,7 @@ import DashboardHome from "./pages/dashboard/DashboardHome";
 import ProfileEditor from "./pages/dashboard/ProfileEditor";
 import Wallet from "./pages/dashboard/Wallet";
 import Calendar from "./pages/dashboard/Calendar";
+import Tickets from "./pages/dashboard/Tickets";
 import PhonePromptModal from "./components/PhonePromptModal";
 import SessionManager from "./components/SessionManager";
 import ResolutionCenter from "./components/ResolutionCenter";
@@ -27,6 +28,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import QuiklancerManagement from "./pages/admin/QuiklancerManagement";
+import ExpertVetting from "./pages/admin/ExpertVetting";
 import ClientManagement from "./pages/admin/ClientManagement";
 import MISReports from "./pages/admin/MISReports";
 import DisputeManagement from "./pages/admin/DisputeManagement";
@@ -58,6 +60,7 @@ function AppContent() {
           {/* Admin Routes */}
           <Route path="/admin" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><AdminDashboard /></AdminLayout>} />
           <Route path="/admin/quiklancers" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><QuiklancerManagement /></AdminLayout>} />
+          <Route path="/admin/vetting" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><ExpertVetting /></AdminLayout>} />
           <Route path="/admin/clients" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><ClientManagement /></AdminLayout>} />
           <Route path="/admin/approvals" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><QuiklancerManagement /></AdminLayout>} />
           <Route path="/admin/reports" element={FEEDBACK_MODE && !isAdmin ? <Navigate to="/" /> : <AdminLayout><MISReports /></AdminLayout>} />
@@ -70,6 +73,7 @@ function AppContent() {
           <Route path="/dashboard/profile" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><ProfileEditor /></DashboardLayout>} />
           <Route path="/dashboard/wallet" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><Wallet /></DashboardLayout>} />
           <Route path="/dashboard/calendar" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><Calendar /></DashboardLayout>} />
+          <Route path="/dashboard/tickets" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><Tickets /></DashboardLayout>} />
           <Route path="/dashboard/requests" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><div className="text-4xl font-black">Requests (Coming Soon)</div></DashboardLayout>} />
           <Route path="/dashboard/analytics" element={FEEDBACK_MODE ? <Navigate to="/" /> : <DashboardLayout><div className="text-4xl font-black">Analytics & MIS (Coming Soon)</div></DashboardLayout>} />
 
