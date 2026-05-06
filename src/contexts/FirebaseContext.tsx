@@ -65,11 +65,12 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // Safety timeout to prevent stuck loading screen
     const timeoutId = setTimeout(() => {
       setLoading(false);
-    }, 5000);
+    }, 3000); // Reduced to 3s
 
     const unsubscribe = onAuthStateChanged(auth, async (user: any) => {
       clearTimeout(timeoutId);
       setUser(user);
+      
       if (user) {
         // Fetch or create profile
         try {
@@ -90,14 +91,14 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               uid: user.uid,
               email: user.email || '',
               displayName: user.displayName || 'Anonymous',
-              photoURL: user.photoURL || '', // Use empty string instead of undefined
+              photoURL: user.photoURL || '',
               role: 'client',
               walletBalance: 0,
               totalEarnings: 0,
               country: 'India',
               currency: 'INR',
               createdAt: new Date().toISOString(),
-              status: 'active' // Clients are active immediately
+              status: 'active'
             };
             try {
               await setDoc(doc(db, 'users', user.uid), {
@@ -111,11 +112,12 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           }
         } catch (error) {
           console.error("Error fetching/creating profile:", error);
+          // Don't keep loading forever if profile fetch fails
         }
       } else {
         setProfile(null);
       }
-      setLoading(false);
+      setLoading(false); // Always set loading to false after auth state is determined
     });
 
     return () => {
