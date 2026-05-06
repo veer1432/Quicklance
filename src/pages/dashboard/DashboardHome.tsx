@@ -26,7 +26,7 @@ import ChatWindow from '@/src/components/ChatWindow';
 import { AnimatePresence } from 'motion/react';
 
 export default function DashboardHome() {
-  const { profile, updateProfile } = useFirebase();
+  const { profile, activeRole, updateProfile } = useFirebase();
   const { formatPrice } = useCurrency();
   const [selectedChat, setSelectedChat] = React.useState<{ roomId: string, expertId: string, expertName: string } | null>(null);
 
@@ -34,19 +34,19 @@ export default function DashboardHome() {
     await updateProfile({ isAvailable: !profile?.isAvailable });
   };
 
-  const isExpert = profile?.role === 'expert';
-  const isAdmin = profile?.role === 'admin';
+  const isExpert = activeRole === 'expert';
+  const isAdmin = activeRole === 'admin';
 
   const stats = isExpert ? [
-    { label: 'Total Earnings', value: formatPrice(profile?.totalEarnings || 0), icon: DollarSign, trend: '+12.5%', color: 'blue' },
-    { label: 'Completed Sessions', value: '24', icon: Video, trend: '+8.2%', color: 'green' },
-    { label: 'Avg. Rating', value: profile?.rating || '5.0', icon: Star, trend: '0.0%', color: 'yellow' },
-    { label: 'Active Requests', value: '3', icon: MessageSquare, trend: '-2.4%', color: 'purple' },
+    { label: 'Total Earnings', value: formatPrice(profile?.totalEarnings || 0), icon: DollarSign, trend: '0.0%', color: 'blue' },
+    { label: 'Completed Sessions', value: profile?.totalCalls || '0', icon: Video, trend: '0.0%', color: 'green' },
+    { label: 'Avg. Rating', value: profile?.rating || '0.0', icon: Star, trend: '0.0%', color: 'yellow' },
+    { label: 'Active Requests', value: '0', icon: MessageSquare, trend: '0.0%', color: 'purple' },
   ] : [
     { label: 'Wallet Balance', value: formatPrice(profile?.walletBalance || 0), icon: Wallet, trend: '0.0%', color: 'blue' },
-    { label: 'Issues Posted', value: '12', icon: MessageSquare, trend: '+2', color: 'green' },
-    { label: 'Sessions Attended', value: '8', icon: Video, trend: '+1', color: 'purple' },
-    { label: 'Avg. Expert Rating', value: '4.9', icon: Star, trend: '0.0%', color: 'yellow' },
+    { label: 'Issues Posted', value: '0', icon: MessageSquare, trend: '0.0%', color: 'green' },
+    { label: 'Sessions Attended', value: '0', icon: Video, trend: '0.0%', color: 'purple' },
+    { label: 'Review Score', value: '0.0', icon: Star, trend: '0.0%', color: 'yellow' },
   ];
 
   return (
@@ -189,35 +189,11 @@ export default function DashboardHome() {
             </div>
             
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <Card key={i} className="p-6" hover={false}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-2xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center font-bold text-gray-400 dark:text-gray-600">
-                        {isExpert ? 'JD' : 'W'}
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 dark:text-gray-100">
-                          {isExpert ? 'Wix SEO Optimization' : 'React Native Debugging'}
-                        </h4>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          {isExpert ? 'Requested by John Doe • 2 hours ago' : 'Expert: Sarah Smith • Yesterday'}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {isExpert ? (
-                        <>
-                          <Button variant="secondary" size="sm">Decline</Button>
-                          <Button size="sm">Accept</Button>
-                        </>
-                      ) : (
-                        <Button variant="outline" size="sm">View Details</Button>
-                      )}
-                    </div>
-                  </div>
-                </Card>
-              ))}
+              <Card className="p-12 text-center bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2rem]">
+                <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">No requests yet</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium italic">New help requests from clients will appear here.</p>
+              </Card>
             </div>
           </div>
 

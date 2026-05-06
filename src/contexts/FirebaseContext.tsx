@@ -19,7 +19,8 @@ import {
   storage,
   ref,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
+  isFirebaseConfigured
 } from '../firebase';
 import { doc, getDoc, setDoc, serverTimestamp, collection, addDoc, query, where, onSnapshot } from 'firebase/firestore';
 import { UserProfile, Session } from '../types';
@@ -27,9 +28,11 @@ import { UserProfile, Session } from '../types';
 interface FirebaseContextType {
   user: User | null;
   profile: UserProfile | null;
+  activeRole: 'client' | 'expert' | 'admin' | null;
   loading: boolean;
   signIn: () => Promise<void>;
-  signInWithEmail: (email: string, pass: string) => Promise<void>;
+  signInWithEmail: (email: string, pass: string, targetRole?: 'client' | 'expert' | 'admin') => Promise<void>;
+  switchRole: (role: 'client' | 'expert' | 'admin') => void;
   signUpWithEmail: (email: string, pass: string, displayName: string) => Promise<User>;
   verifyEmail: () => Promise<void>;
   logout: () => Promise<void>;
@@ -46,11 +49,26 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeRole, setActiveRole] = useState<'client' | 'expert' | 'admin' | null>(null);
 
   const [isSigningIn, setIsSigningIn] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const savedRole = localStorage.getItem('quiklance_active_role') as any;
+    if (savedRole) setActiveRole(savedRole);
+
+    if (!isFirebaseConfigured || !auth) {
+      setLoading(false);
+      return;
+    }
+
+    // Safety timeout to prevent stuck loading screen
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+
+    const unsubscribe = onAuthStateChanged(auth, async (user: any) => {
+      clearTimeout(timeoutId);
       setUser(user);
       if (user) {
         // Fetch or create profile
@@ -58,8 +76,14 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             const data = userDoc.data() as UserProfile;
-            // Force admin role for users with admin role in DB
             setProfile(data);
+            
+            // If no active role set, default to their profile role
+            if (!localStorage.getItem('quiklance_active_role')) {
+              const defaultRole = data.role === 'admin' ? 'admin' : data.role;
+              setActiveRole(defaultRole as any);
+              localStorage.setItem('quiklance_active_role', defaultRole);
+            }
           } else {
             // New user profile
             const newProfile: UserProfile = {
@@ -73,13 +97,17 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
               country: 'India',
               currency: 'INR',
               createdAt: new Date().toISOString(),
-              status: 'pending' // Default to pending for new users
+              status: 'active' // Clients are active immediately
             };
-            await setDoc(doc(db, 'users', user.uid), {
-              ...newProfile,
-              createdAt: serverTimestamp(),
-            });
-            setProfile(newProfile);
+            try {
+              await setDoc(doc(db, 'users', user.uid), {
+                ...newProfile,
+                createdAt: serverTimestamp(),
+              });
+              setProfile(newProfile);
+            } catch (err) {
+              handleFirestoreError(err, OperationType.CREATE, `users/${user.uid}`);
+            }
           }
         } catch (error) {
           console.error("Error fetching/creating profile:", error);
@@ -90,10 +118,17 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const signIn = async () => {
+    if (!isFirebaseConfigured || !auth) {
+      alert("Firebase is not configured. Features will be available once setup is complete.");
+      return;
+    }
     if (isSigningIn) return;
     setIsSigningIn(true);
     try {
@@ -111,11 +146,26 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const signInWithEmail = async (email: string, pass: string) => {
+  const signInWithEmail = async (email: string, pass: string, targetRole?: 'client' | 'expert' | 'admin') => {
+    if (!isFirebaseConfigured || !auth) {
+      throw new Error("Firebase is not configured.");
+    }
     await signInWithEmailAndPassword(auth, email, pass);
+    if (targetRole) {
+      setActiveRole(targetRole);
+      localStorage.setItem('quiklance_active_role', targetRole);
+    }
+  };
+
+  const switchRole = (role: 'client' | 'expert' | 'admin') => {
+    setActiveRole(role);
+    localStorage.setItem('quiklance_active_role', role);
   };
 
   const signUpWithEmail = async (email: string, pass: string, displayName: string) => {
+    if (!isFirebaseConfigured || !auth) {
+      throw new Error("Firebase is not configured.");
+    }
     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
     await updateAuthProfile(userCredential.user, { displayName });
     await sendEmailVerification(userCredential.user);
@@ -123,12 +173,13 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const verifyEmail = async () => {
-    if (auth.currentUser) {
+    if (isFirebaseConfigured && auth && auth.currentUser) {
       await sendEmailVerification(auth.currentUser);
     }
   };
 
   const logout = async () => {
+    if (!isFirebaseConfigured || !auth) return;
     try {
       await signOut(auth);
     } catch (error) {
@@ -137,7 +188,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateProfile = async (data: Partial<UserProfile>) => {
-    if (!user) return;
+    if (!user || !db) return;
     const path = `users/${user.uid}`;
     try {
       await setDoc(doc(db, 'users', user.uid), {
@@ -151,7 +202,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const processTransaction = async (amount: number, type: 'debit' | 'credit', description: string) => {
-    if (!user || !profile) return;
+    if (!user || !profile || !db) return;
     const path = `users/${user.uid}`;
     const newBalance = type === 'debit' ? (profile.walletBalance || 0) - amount : (profile.walletBalance || 0) + amount;
     
@@ -181,16 +232,25 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const setupRecaptcha = (containerId: string) => {
+    if (!isFirebaseConfigured || !auth) {
+      throw new Error("Firebase is not configured.");
+    }
     return new RecaptchaVerifier(auth, containerId, {
       size: 'invisible',
     });
   };
 
   const sendOTP = async (phoneNumber: string, recaptchaVerifier: RecaptchaVerifier) => {
+    if (!isFirebaseConfigured || !auth) {
+      throw new Error("Firebase is not configured.");
+    }
     return await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
   };
 
   const uploadFile = async (file: File, path: string): Promise<string> => {
+    if (!isFirebaseConfigured || !storage) {
+      throw new Error("Firebase is not configured or storage is unavailable.");
+    }
     const storageRef = ref(storage, path);
     await uploadBytes(storageRef, file);
     return await getDownloadURL(storageRef);
@@ -200,9 +260,11 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     <FirebaseContext.Provider value={{ 
       user, 
       profile, 
+      activeRole,
       loading, 
       signIn, 
       signInWithEmail,
+      switchRole,
       signUpWithEmail,
       verifyEmail,
       logout, 

@@ -14,9 +14,33 @@ import { useCurrency } from '@/src/contexts/CurrencyContext';
 import { Card } from '@/src/components/ui/Card';
 import { Button } from '@/src/components/ui/Button';
 
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { db } from '@/src/firebase';
+
 export default function Wallet() {
-  const { profile, processTransaction } = useFirebase();
+  const { profile, user, processTransaction } = useFirebase();
   const { formatPrice } = useCurrency();
+  const [transactions, setTransactions] = React.useState<any[]>([]);
+  const [loadingTransactions, setLoadingTransactions] = React.useState(true);
+
+  React.useEffect(() => {
+    if (!user) return;
+    
+    const txRef = collection(db, 'users', user.uid, 'transactions');
+    const q = query(txRef, orderBy('createdAt', 'desc'));
+    
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const txData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        date: doc.data().createdAt?.toDate().toLocaleString() || 'Just now'
+      }));
+      setTransactions(txData);
+      setLoadingTransactions(false);
+    });
+
+    return () => unsubscribe();
+  }, [user]);
 
   const isExpert = profile?.role === 'expert';
 
@@ -31,13 +55,6 @@ export default function Wallet() {
       }
     }
   };
-
-  const transactions = [
-    { id: '1', type: 'credit', amount: 45.00, description: 'Session with John Doe', date: '2 hours ago' },
-    { id: '2', type: 'credit', amount: 60.00, description: 'Session with Sarah Smith', date: 'Yesterday' },
-    { id: '3', type: 'debit', amount: 100.00, description: 'Withdrawal to Bank Account', date: '2 days ago' },
-    { id: '4', type: 'credit', amount: 35.00, description: 'Session with Marcus Thorne', date: '3 days ago' },
-  ];
 
   return (
     <div className="space-y-12 transition-colors duration-300">
@@ -67,8 +84,8 @@ export default function Wallet() {
               <div>
                 <h2 className="text-6xl font-black">{formatPrice(profile?.walletBalance || 0)}</h2>
                 <p className="mt-4 text-blue-100 dark:text-blue-200 font-medium flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-green-400 dark:text-green-500" />
-                  +15% from last month
+                  <TrendingUp className="h-5 w-5 text-blue-200 dark:text-blue-400" />
+                  Real-time wallet balance
                 </p>
               </div>
               
@@ -110,7 +127,7 @@ export default function Wallet() {
             <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
               <div className="flex items-center justify-between text-sm">
                 <span className="font-bold text-gray-500 dark:text-gray-400">Pending Clearance</span>
-                <span className="font-black text-gray-900 dark:text-gray-100">{formatPrice(120)}</span>
+                <span className="font-black text-gray-900 dark:text-gray-100">{formatPrice(0)}</span>
               </div>
             </div>
           </Card>
@@ -128,7 +145,9 @@ export default function Wallet() {
         </div>
 
         <div className="space-y-4">
-          {transactions.map((tx) => (
+          {loadingTransactions ? (
+            <div className="h-20 animate-pulse bg-gray-100 dark:bg-gray-800 rounded-2xl" />
+          ) : transactions.length > 0 ? transactions.map((tx) => (
             <Card key={tx.id} className="p-6" hover={false}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -149,7 +168,13 @@ export default function Wallet() {
                 </div>
               </div>
             </Card>
-          ))}
+          )) : (
+            <Card className="p-12 text-center bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-[2rem]">
+              <History className="h-12 w-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">No history to be shown</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium italic">Your financial transactions will appear here.</p>
+            </Card>
+          )}
         </div>
       </div>
     </div>

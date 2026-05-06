@@ -20,6 +20,12 @@ export default function Calendar() {
   const [isSaving, setIsSaving] = useState(false);
   const [slots, setSlots] = useState<AvailabilitySlot[]>(profile?.availability || []);
 
+  React.useEffect(() => {
+    if (profile?.availability) {
+      setSlots(profile.availability);
+    }
+  }, [profile]);
+
   const handleSave = async () => {
     setIsSaving(true);
     try {

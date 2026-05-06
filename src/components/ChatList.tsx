@@ -13,7 +13,7 @@ interface ChatListProps {
 }
 
 export default function ChatList({ onSelectRoom }: ChatListProps) {
-  const { user } = useFirebase();
+  const { user, activeRole } = useFirebase();
   const [rooms, setRooms] = useState<ChatRoom[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -59,7 +59,11 @@ export default function ChatList({ onSelectRoom }: ChatListProps) {
           <MessageSquare className="h-8 w-8" />
         </div>
         <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">No messages yet</h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Start a chat with a Quiklancer to discuss your issues.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          {activeRole === 'expert' 
+            ? "Wait for clients to message you about their issues. Make sure your profile is active!" 
+            : "Start a chat with a Quiklancer to discuss your issues."}
+        </p>
       </div>
     );
   }

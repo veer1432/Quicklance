@@ -31,6 +31,10 @@ export default function Experts() {
   }, [category]);
 
   useEffect(() => {
+    if (!db) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const path = "users";
     const q = query(
@@ -72,9 +76,13 @@ export default function Experts() {
     const searchLower = (search || "").toLowerCase();
     const categoryLower = (selectedCategory || "All").toLowerCase();
 
-    const matchesSearch = (expert.displayName || "").toLowerCase().includes(searchLower) || 
-                          (expert.role?.toLowerCase().includes(searchLower)) ||
-                          (expert.skills?.some(s => s?.toLowerCase().includes(searchLower)));
+    const searchTokens = searchLower.split(/\s+/).filter(t => t.length > 0);
+    const matchesSearch = searchTokens.length === 0 || searchTokens.every(token => {
+      const inName = (expert.displayName || "").toLowerCase().includes(token);
+      const inRole = expert.role?.toLowerCase().includes(token);
+      const inSkills = expert.skills?.some(s => s?.toLowerCase().includes(token));
+      return inName || inRole || inSkills;
+    });
     
     const matchesCategory = selectedCategory === "All" || 
                             (expert.role?.toLowerCase().includes(categoryLower)) || 

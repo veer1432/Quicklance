@@ -14,23 +14,28 @@ import {
   ConfirmationResult,
   updateProfile as updateAuthProfile
 } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { initializeFirestore, doc, getDocFromServer } from 'firebase/firestore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 // Safely attempt to load local config if it exists
-const configs = import.meta.glob('../firebase-applet-config.json', { eager: true });
-const localConfig = (Object.values(configs)[0] as any)?.default || {};
+let localConfig: any = {};
+try {
+  const configs = import.meta.glob('../firebase-applet-config.json', { eager: true });
+  localConfig = (Object.values(configs)[0] as any)?.default || {};
+} catch (e) {
+  console.warn("Could not load local firebase config file:", e);
+}
 
 // Use environment variables if available, otherwise fallback to local config file
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || (localConfig ? localConfig.apiKey : ''),
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || (localConfig ? localConfig.authDomain : ''),
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || (localConfig ? localConfig.projectId : ''),
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || (localConfig ? localConfig.storageBucket : ''),
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || (localConfig ? localConfig.messagingSenderId : ''),
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || (localConfig ? localConfig.appId : ''),
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || (localConfig ? localConfig.measurementId : ''),
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || (localConfig ? localConfig.firestoreDatabaseId : '(default)')
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || localConfig?.apiKey || '',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || localConfig?.authDomain || '',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || localConfig?.projectId || '',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || localConfig?.storageBucket || '',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || localConfig?.messagingSenderId || '',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || localConfig?.appId || '',
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || localConfig?.measurementId || '',
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || localConfig?.firestoreDatabaseId || '(default)'
 };
 
 if (!firebaseConfig.apiKey) {
@@ -38,13 +43,32 @@ if (!firebaseConfig.apiKey) {
 }
 
 // Initialize Firebase SDK
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
-export const auth = getAuth(app);
-export const storage = getStorage(app);
+let app: any;
+let db: any;
+let auth: any;
+let storage: any;
+const isFirebaseConfigured = !!firebaseConfig.apiKey;
+
+if (isFirebaseConfigured) {
+  try {
+    app = initializeApp(firebaseConfig);
+    db = initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+    }, firebaseConfig.firestoreDatabaseId);
+    auth = getAuth(app);
+    storage = getStorage(app);
+  } catch (error) {
+    console.error("Firebase initialization failed:", error);
+  }
+} else {
+  console.warn("Firebase is not configured. Features like Login and Dashboard will be placeholder/inactive until Firebase is set up in the AI Studio UI.");
+}
+
+export { db, auth, storage, isFirebaseConfigured };
 export const googleProvider = new GoogleAuthProvider();
 
 async function testConnection() {
+  if (!db) return;
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
   } catch (error) {

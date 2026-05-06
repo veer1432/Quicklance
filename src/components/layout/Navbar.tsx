@@ -9,7 +9,7 @@ import { FEEDBACK_MODE } from "@/src/config";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, profile, signIn, logout } = useFirebase();
+  const { user, profile, activeRole, switchRole, logout } = useFirebase();
   const { theme, toggleTheme } = useTheme();
 
   const navLinks = FEEDBACK_MODE ? [
@@ -17,8 +17,12 @@ export default function Navbar() {
     { to: "/feedback", label: "Give Feedback" },
   ] : [
     { to: "/how-it-works", label: "How it Works" },
-    { to: "/post-issue", label: "Post an Issue" },
+    { to: "/post-issue", label: "Get help now" },
   ];
+
+  const isAdmin = activeRole === 'admin';
+  const isExpert = activeRole === 'expert';
+  const isClient = activeRole === 'client';
 
   return (
     <div className="w-full">
@@ -78,21 +82,21 @@ export default function Navbar() {
 
           {!FEEDBACK_MODE && (
             <motion.div 
-              className="relative"
-              whileFocus={{ scale: 1.02 }}
+              className="relative flex-1 max-w-md lg:max-w-xl mx-4"
+              whileFocus={{ scale: 1.01 }}
             >
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
               <input 
                 type="text" 
                 placeholder="Search issues or experts..." 
-                className="h-10 w-64 rounded-full border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 pl-10 pr-4 text-sm text-gray-900 dark:text-white focus:border-blue-500 focus:bg-white dark:focus:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900/30 transition-all"
+                className="h-11 w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 pl-11 pr-4 text-sm text-gray-900 dark:text-white focus:border-blue-500 focus:bg-white dark:focus:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-blue-100 dark:focus:ring-blue-900/20 transition-all shadow-sm"
               />
             </motion.div>
           )}
           
           {user && !FEEDBACK_MODE ? (
-            <div className="flex items-center gap-6">
-              {profile?.role === 'admin' ? (
+            <div className="flex items-center gap-6 shrink-0">
+              {isAdmin ? (
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Link 
                     to="/admin" 
@@ -112,17 +116,7 @@ export default function Navbar() {
                     Quiklancer Panel
                   </Link>
                 </motion.div>
-              ) : (
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link 
-                    to="/dashboard" 
-                    className="text-sm font-bold text-gray-600 hover:text-blue-600 flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl transition-all border border-gray-100"
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    Dashboard
-                  </Link>
-                </motion.div>
-              )}
+              ) : null}
               
               <div className="flex items-center gap-3 border-l border-gray-100 pl-6">
                 <motion.div 
@@ -138,6 +132,16 @@ export default function Navbar() {
                   )}
                   <span className="text-sm font-bold text-gray-900">{user.displayName?.split(' ')[0]}</span>
                 </motion.div>
+                
+                {profile?.role === 'expert' && (
+                  <button 
+                    onClick={() => switchRole(activeRole === 'expert' ? 'client' : 'expert')}
+                    className="text-[10px] font-black px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-lg uppercase tracking-tighter hover:bg-blue-600 hover:text-white transition-all whitespace-nowrap"
+                  >
+                    Switch to {activeRole === 'expert' ? 'Client' : 'Expert'}
+                  </button>
+                )}
+
                 <motion.button 
                   whileHover={{ scale: 1.1, color: "#ef4444" }}
                   whileTap={{ scale: 0.9 }}
@@ -150,21 +154,15 @@ export default function Navbar() {
               </div>
             </div>
           ) : !FEEDBACK_MODE ? (
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 shrink-0">
               <Link 
                 to="/login"
-                className="text-sm font-bold text-gray-600 hover:text-blue-600 px-4 py-2 transition-colors"
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-bold text-white transition-all hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30 active:scale-95"
               >
-                Client Login
+                <Zap className="h-4 w-4 fill-white transition-transform group-hover:rotate-12 group-hover:scale-110" />
+                Login
+                <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               </Link>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link 
-                  to="/become-quiklancer"
-                  className="rounded-full bg-blue-600 px-6 py-2 text-sm font-bold text-white hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20"
-                >
-                  Become a Quiklancer
-                </Link>
-              </motion.div>
             </div>
           ) : (
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -228,8 +226,7 @@ export default function Navbar() {
                     </Link>
                   ) : (
                     <>
-                      <Link to="/login" className="block w-full rounded-full border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 py-4 text-center font-bold text-gray-600 dark:text-gray-400">Client Login</Link>
-                      <Link to="/become-quiklancer" className="block w-full rounded-full bg-blue-600 py-4 text-center font-bold text-white shadow-xl shadow-blue-500/20">Become a Quiklancer</Link>
+                      <Link to="/login" className="block w-full rounded-full border border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800 py-4 text-center font-bold text-gray-600 dark:text-gray-400">Login</Link>
                     </>
                   )}
                 </div>

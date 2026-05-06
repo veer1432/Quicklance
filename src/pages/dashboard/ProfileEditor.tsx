@@ -21,14 +21,15 @@ import { Button } from '@/src/components/ui/Button';
 import { CATEGORIES, Experience, Certificate } from '@/src/types';
 
 export default function ProfileEditor() {
-  const { profile, updateProfile, user, uploadFile } = useFirebase();
+  const { profile, activeRole, updateProfile, user, uploadFile } = useFirebase();
   const { currency, formatPrice } = useCurrency();
   const [isSaving, setIsSaving] = useState(false);
   const [fileUploading, setFileUploading] = useState<number | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   
-  const isExpert = profile?.role === 'expert';
-  const isClient = profile?.role === 'client';
+  const isExpert = activeRole === 'expert';
+  const isClient = activeRole === 'client';
+  const isAdmin = activeRole === 'admin';
 
   const [formData, setFormData] = useState({
     displayName: profile?.displayName || '',
@@ -576,13 +577,12 @@ export default function ProfileEditor() {
               </Card>
 
               <Card className="p-8 bg-gray-900 dark:bg-gray-800 text-white">
-                <CheckCircle2 className="h-10 w-10 mb-4 text-green-400 dark:text-green-500" />
-                <h3 className="text-xl font-bold mb-2">Profile Strength</h3>
-                <div className="h-2 w-full bg-gray-800 dark:bg-gray-700 rounded-full mb-4">
-                  <div className="h-full bg-green-400 dark:bg-green-500 rounded-full" style={{ width: '85%' }} />
-                </div>
-                <p className="text-sm text-gray-400 dark:text-gray-400 leading-relaxed">
-                  Your profile is looking great! Adding more certificates can increase your credibility by 25%.
+                <Info className="h-10 w-10 mb-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                <h3 className="text-xl font-bold mb-2 italic">Profile Tips</h3>
+                <p className="text-sm text-gray-400 dark:text-gray-400 leading-relaxed font-medium">
+                  {isExpert 
+                    ? 'A detailed bio and verified documents help you stand out to clients. Keep your profile updated to build trust!'
+                    : 'Personalize your profile to help Quiklancers understand your needs better.'}
                 </p>
               </Card>
             </>

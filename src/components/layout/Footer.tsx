@@ -31,7 +31,8 @@ export default function Footer() {
           <div>
             <h3 className="mb-6 text-sm font-bold uppercase tracking-wider text-gray-900 dark:text-white leading-none">Platform</h3>
             <ul className="space-y-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-              <li><Link to="/post-issue" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Post an Issue</Link></li>
+              <li><Link to="/become-quiklancer" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-bold text-blue-600">Apply as Quiklancer</Link></li>
+              <li><Link to="/post-issue" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Get help now</Link></li>
               <li><Link to="/how-it-works" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">How it Works</Link></li>
               <li>
                 <Link to={adminPath} className="flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold hover:text-blue-700 dark:hover:text-blue-300 transition-colors">

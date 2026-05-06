@@ -45,8 +45,41 @@ export default function BecomeQuiklancer() {
   const [fileUploading, setFileUploading] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   
-  const { signUpWithEmail, updateProfile, verifyEmail, user, uploadFile } = useFirebase();
+  const { signUpWithEmail, updateProfile, verifyEmail, user, profile, activeRole, loading, switchRole, uploadFile, logout } = useFirebase();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loading) return;
+    
+    if (user && profile) {
+      // If user is already an expert, redirect to dashboard or onboarding
+      if (profile.role === 'expert') {
+        if (profile.status === 'active' || profile.status === 'pending') {
+          if (profile.experience && profile.experience.length > 0) {
+            navigate('/dashboard');
+          } else {
+            setStep('experience');
+          }
+        }
+      } else if (profile.role === 'client') {
+        // Logged in as client, just need to upgrade to expert
+        setStep('phone');
+      }
+    }
+  }, [user, profile, loading, navigate]);
+
+  useEffect(() => {
+    if (user && profile) {
+      // Pre-fill form if data exists
+      setFormData(prev => ({
+        ...prev,
+        displayName: profile.displayName || user.displayName || prev.displayName,
+        email: profile.email || user.email || prev.email,
+        phone: profile.phoneNumber?.replace(/^\+\d+/, '') || prev.phone,
+        countryCode: profile.phoneNumber?.match(/^\+\d+/)?.[0] || prev.countryCode,
+      }));
+    }
+  }, [user, profile]);
 
   const handleAccountSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +90,13 @@ export default function BecomeQuiklancer() {
       await signUpWithEmail(formData.email, formData.password, formData.displayName);
       setStep('email-verify');
     } catch (err: any) {
-      setError(err.message || "Failed to create account. Email might be in use.");
+      if (err.code === 'auth/email-already-in-use') {
+        setError("This email is already registered. Please login instead.");
+      } else if (err.code === 'auth/network-request-failed') {
+        setError("Network error. This can happen if your connection is unstable or blocked. Please try refreshing the page or using a different browser.");
+      } else {
+        setError(err.message || "Failed to create account. Please try again.");
+      }
     } finally {
       setIsVerifying(false);
     }
@@ -89,12 +128,20 @@ export default function BecomeQuiklancer() {
       const fullPhoneNumber = `${formData.countryCode}${formData.phone.trim()}`;
       
       // Update profile to be a pending expert with the phone number
+      if (!user) throw new Error("No authenticated user found.");
+
       await updateProfile({ 
+        uid: user.uid,
+        email: user.email || '',
         role: 'expert', 
         status: 'pending',
         phoneNumber: fullPhoneNumber,
-        displayName: formData.displayName
+        displayName: formData.displayName || user.displayName || 'Quiklancer',
+        hourlyRate: 250 
       });
+      
+      // Crucial: Switch active role to expert so dashboard allows them
+      switchRole('expert');
       
       setStep('experience');
     } catch (err: any) {
@@ -162,6 +209,14 @@ export default function BecomeQuiklancer() {
     setFormData({ ...formData, certificates: newCerts });
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+        <RefreshCw className="h-10 w-10 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
   const renderStep = () => {
     switch (step) {
       case 'account':
@@ -172,77 +227,108 @@ export default function BecomeQuiklancer() {
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
           >
-            <div className="space-y-2">
-              <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">Create your account</h2>
-              <p className="text-gray-500 dark:text-gray-400 font-medium">Start your journey as a Quiklancer today.</p>
-            </div>
-            
-            {error && (
-              <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 text-sm font-bold">
-                {error}
+            {user ? (
+              <div className="space-y-6 text-center">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600">
+                  <UserIcon className="h-10 w-10" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">Welcome back, {user.displayName || 'Quiklancer'}</h2>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">You are currently logged in. Would you like to use this account to become an expert?</p>
+                </div>
+                <Button onClick={() => setStep('phone')} className="w-full h-14 text-lg rounded-2xl">
+                  Continue as {user.email}
+                </Button>
+                <Button variant="ghost" onClick={logout} className="w-full text-gray-500 font-bold">
+                  Use a different account
+                </Button>
               </div>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">Create your account</h2>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">Start your journey as a Quiklancer today.</p>
+                </div>
+                
+                {error && (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/30 text-red-600 dark:text-red-400 text-sm font-bold">
+                      {error}
+                    </div>
+                    {(error.includes("already registered") || error.includes("network error")) && (
+                      <Button 
+                        variant="outline" 
+                        onClick={() => navigate('/login')}
+                        className="w-full h-12 rounded-xl text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-900/50"
+                      >
+                        Go to Login
+                      </Button>
+                    )}
+                  </div>
+                )}
+
+                <form onSubmit={handleAccountSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Full Name</label>
+                    <div className="relative">
+                      <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-600" />
+                      <input 
+                        type="text" 
+                        required
+                        value={formData.displayName}
+                        onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                        className="h-14 w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 pl-12 pr-6 font-bold text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 focus:outline-none transition-all"
+                        placeholder="John Doe"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Email Address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-600" />
+                      <input 
+                        type="email" 
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="h-14 w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 pl-12 pr-6 font-bold text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 focus:outline-none transition-all"
+                        placeholder="name@company.com"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-600" />
+                      <input 
+                        type="password" 
+                        required
+                        minLength={6}
+                        value={formData.password}
+                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                        className="h-14 w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 pl-12 pr-6 font-bold text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 focus:outline-none transition-all"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+
+                  <Button type="submit" disabled={isVerifying} className="w-full h-14 text-lg rounded-2xl shadow-xl shadow-blue-100 dark:shadow-blue-900/40">
+                    {isVerifying ? <RefreshCw className="h-5 w-5 animate-spin" /> : 'Continue'}
+                  </Button>
+
+                  <div className="pt-4 text-center">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                      Already have an account?{' '}
+                      <Link to="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
+                        Login
+                      </Link>
+                    </p>
+                  </div>
+                </form>
+              </>
             )}
-
-            <form onSubmit={handleAccountSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Full Name</label>
-                <div className="relative">
-                  <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-600" />
-                  <input 
-                    type="text" 
-                    required
-                    value={formData.displayName}
-                    onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                    className="h-14 w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 pl-12 pr-6 font-bold text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 focus:outline-none transition-all"
-                    placeholder="John Doe"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-600" />
-                  <input 
-                    type="email" 
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="h-14 w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 pl-12 pr-6 font-bold text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 focus:outline-none transition-all"
-                    placeholder="name@company.com"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-600" />
-                  <input 
-                    type="password" 
-                    required
-                    minLength={6}
-                    value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                    className="h-14 w-full rounded-2xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 pl-12 pr-6 font-bold text-gray-900 dark:text-gray-100 focus:border-blue-500 focus:bg-white dark:focus:bg-gray-900 focus:outline-none transition-all"
-                    placeholder="••••••••"
-                  />
-                </div>
-              </div>
-
-              <Button type="submit" disabled={isVerifying} className="w-full h-14 text-lg rounded-2xl shadow-xl shadow-blue-100 dark:shadow-blue-900/40">
-                {isVerifying ? <RefreshCw className="h-5 w-5 animate-spin" /> : 'Continue'}
-              </Button>
-
-              <div className="pt-4 text-center">
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                  Already a Quiklancer?{' '}
-                  <Link to="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline">
-                    Quiklancer Login
-                  </Link>
-                </p>
-              </div>
-            </form>
           </motion.div>
         );
 

@@ -2,194 +2,68 @@
   "entities": {
     "UserProfile": {
       "title": "User Profile",
-      "description": "Stores user information including roles and skills.",
+      "description": "Stores user account information for both clients and experts.",
       "type": "object",
       "properties": {
-        "uid": { "type": "string", "description": "Unique user ID from Firebase Auth" },
-        "email": { "type": "string", "format": "email" },
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
         "displayName": { "type": "string" },
-        "photoURL": { "type": "string", "format": "uri" },
         "role": { "type": "string", "enum": ["client", "expert", "admin"] },
         "bio": { "type": "string" },
-        "skills": { "type": "array", "items": { "type": "string" } },
         "hourlyRate": { "type": "number" },
-        "rating": { "type": "number" },
-        "reviewCount": { "type": "integer" },
-        "createdAt": { "type": "string", "format": "date-time" }
+        "status": { "type": "string", "enum": ["pending", "active", "blocked", "suspended", "rejected"] },
+        "walletBalance": { "type": "number" },
+        "totalEarnings": { "type": "number" }
       },
-      "required": ["uid", "email", "displayName", "role", "createdAt"]
-    },
-    "Issue": {
-      "title": "Issue",
-      "description": "A technical hurdle posted by a client.",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "clientId": { "type": "string" },
-        "title": { "type": "string" },
-        "description": { "type": "string" },
-        "category": { "type": "string" },
-        "status": { "type": "string", "enum": ["open", "in-progress", "resolved", "cancelled"] },
-        "expertId": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["clientId", "title", "description", "category", "status", "createdAt", "updatedAt"]
-    },
-    "Review": {
-      "title": "Review",
-      "description": "A review given by a client to an expert after a fix.",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "issueId": { "type": "string" },
-        "fromId": { "type": "string" },
-        "toId": { "type": "string" },
-        "rating": { "type": "number" },
-        "comment": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["issueId", "fromId", "toId", "rating", "createdAt"]
+      "required": ["uid", "email", "displayName", "role"]
     },
     "Session": {
       "title": "Session",
-      "description": "A live support session between a client and an expert.",
+      "description": "Represents a video call session between client and expert.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
         "clientId": { "type": "string" },
         "expertId": { "type": "string" },
-        "issueId": { "type": "string" },
-        "status": { "type": "string", "enum": ["pending", "active", "completed", "cancelled", "dispute", "resolved", "not-resolved-mutual"] },
-        "startTime": { "type": "string", "format": "date-time" },
-        "endTime": { "type": "string", "format": "date-time" },
-        "durationMinutes": { "type": "integer" },
-        "basePrice": { "type": "number" },
-        "totalPaid": { "type": "number" },
-        "isExtended": { "type": "boolean" },
-        "extensionCount": { "type": "integer" },
-        "lastAlertTime": { "type": "string", "format": "date-time" },
-        "meetingLink": { "type": "string" },
-        "clientResolution": { "type": "string", "enum": ["resolved", "not-resolved"] },
-        "expertResolution": { "type": "string", "enum": ["resolved", "not-resolved"] },
-        "adminDecision": { "type": "string", "enum": ["released", "refunded"] },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "status": { "type": "string", "enum": ["pending", "active", "completed", "resolved", "not-resolved-mutual", "dispute", "cancelled"] },
+        "startTime": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "totalPaid": { "type": "number" }
       },
-      "required": ["clientId", "expertId", "status", "startTime", "durationMinutes", "basePrice", "totalPaid", "createdAt", "updatedAt"]
-    },
-    "Dispute": {
-      "title": "Dispute",
-      "description": "A dispute raised for a session.",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "sessionId": { "type": "string" },
-        "clientId": { "type": "string" },
-        "expertId": { "type": "string" },
-        "status": { "type": "string", "enum": ["open", "resolved-released", "resolved-refunded"] },
-        "adminNotes": { "type": "string" },
-        "adminResolution": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" },
-        "updatedAt": { "type": "string", "format": "date-time" },
-        "resolvedAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["sessionId", "clientId", "expertId", "status", "createdAt", "updatedAt"]
+      "required": ["clientId", "expertId", "status", "startTime"]
     },
     "ChatRoom": {
       "title": "Chat Room",
-      "description": "A chat room between a client and an expert.",
+      "description": "A conversation between a client and an expert.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "participants": { "type": "array", "items": { "type": "string" } },
-        "lastMessage": { "type": "string" },
-        "lastMessageAt": { "type": "string", "format": "date-time" },
+        "participants": { "type": "array" },
         "clientId": { "type": "string" },
         "expertId": { "type": "string" },
-        "clientName": { "type": "string" },
-        "expertName": { "type": "string" },
-        "updatedAt": { "type": "string", "format": "date-time" }
+        "lastMessage": { "type": "string" }
       },
-      "required": ["participants", "clientId", "expertId", "clientName", "expertName", "updatedAt"]
-    },
-    "ChatMessage": {
-      "title": "Chat Message",
-      "description": "A message within a chat room.",
-      "type": "object",
-      "properties": {
-        "id": { "type": "string" },
-        "senderId": { "type": "string" },
-        "text": { "type": "string" },
-        "isMasked": { "type": "boolean" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["senderId", "text", "createdAt"]
-    },
-    "FeedbackResponse": {
-      "title": "Feedback Response",
-      "description": "User feedback and beta signup information.",
-      "type": "object",
-      "properties": {
-        "userPersona": { "type": "string" },
-        "techStack": { "type": "array", "items": { "type": "string" } },
-        "issueFrequency": { "type": "string" },
-        "currentMove": { "type": "array", "items": { "type": "string" } },
-        "timeWastedPerIssue": { "type": "string" },
-        "failureRate": { "type": "string" },
-        "willingnessToPay": { "type": "string" },
-        "pricePoint": { "type": "string" },
-        "barrierToPay": { "type": "array", "items": { "type": "string" } },
-        "trustTriggers": { "type": "array", "items": { "type": "string" } },
-        "chatBeforeBooking": { "type": "string" },
-        "bookingPreference": { "type": "string" },
-        "likelihoodToTry": { "type": "number" },
-        "wantEarlyAccess": { "type": "string" },
-        "name": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
-        "whatsapp": { "type": "string" },
-        "recentIssueStory": { "type": "string" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userPersona", "issueFrequency", "willingnessToPay", "createdAt"]
+      "required": ["participants", "clientId", "expertId"]
     }
   },
   "firestore": {
-    "/users/{uid}": {
+    "/users/{userId}": {
       "schema": "UserProfile",
-      "description": "User profile documents."
-    },
-    "/issues/{issueId}": {
-      "schema": "Issue",
-      "description": "Technical issues posted by clients."
-    },
-    "/reviews/{reviewId}": {
-      "schema": "Review",
-      "description": "Reviews for experts."
+      "description": "User profiles by UID."
     },
     "/sessions/{sessionId}": {
       "schema": "Session",
-      "description": "Live support sessions."
-    },
-    "/disputes/{disputeId}": {
-      "schema": "Dispute",
-      "description": "Session disputes and resolution tickets."
-    },
-    "/users/{uid}/transactions/{txId}": {
-      "schema": "object",
-      "description": "Wallet transactions for a user."
+      "description": "Individual sessions."
     },
     "/chatRooms/{roomId}": {
       "schema": "ChatRoom",
-      "description": "Chat rooms between users."
+      "description": "Chat conversations."
     },
     "/chatRooms/{roomId}/messages/{messageId}": {
       "schema": "ChatMessage",
       "description": "Messages within a chat room."
     },
-    "/feedbackResponses/{responseId}": {
+    "/feedback/{feedbackId}": {
       "schema": "FeedbackResponse",
-      "description": "Market research feedback and beta signups."
+      "description": "Market survey feedback responses."
     }
   }
 }

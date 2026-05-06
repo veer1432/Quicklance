@@ -25,7 +25,7 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { profile, loading, logout } = useFirebase();
+  const { profile, activeRole, switchRole, loading, logout } = useFirebase();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
@@ -35,7 +35,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     </div>
   );
 
-  if (!profile || (profile.role !== 'expert' && profile.role !== 'admin')) {
+  // If user is an expert but activeRole is client, check if we should switch or allow
+  if (profile?.role === 'expert' && activeRole === 'client') {
+    // If they are trying to access dashboard, they probably want to be in expert mode
+    // We'll switch it for them and allow access
+    switchRole('expert');
+  }
+
+  // If activeRole is not expert/admin, and they are not an expert profile, they shouldn't be here
+  if (!profile || (profile.role !== 'expert' && activeRole !== 'admin')) {
     return <Navigate to="/experts" replace />;
   }
 

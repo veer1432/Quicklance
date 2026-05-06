@@ -15,22 +15,21 @@ export default function Login() {
   const [displayName, setDisplayName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signInWithEmail, signUpWithEmail, signIn, user, profile } = useFirebase();
+  const { signInWithEmail, signUpWithEmail, signIn, user, profile, activeRole, switchRole } = useFirebase();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user && profile) {
-      if (profile.role === 'admin') {
+      if (activeRole === 'admin') {
         navigate('/admin');
-      } else if (profile.role === 'expert') {
+      } else if (activeRole === 'expert' || profile.role === 'expert') {
+        if (activeRole !== 'expert') switchRole('expert');
         navigate('/dashboard');
-      } else {
-        // For clients, if they just signed up, they might need to go to dashboard to complete profile
-        // but for now let's send them to experts
+      } else if (activeRole === 'client') {
         navigate('/experts');
       }
     }
-  }, [user, profile, navigate]);
+  }, [user, profile, activeRole, navigate, switchRole]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +37,10 @@ export default function Login() {
     setError(null);
     try {
       if (mode === 'login') {
-        await signInWithEmail(email, password);
+        await signInWithEmail(email, password, 'client');
       } else {
         await signUpWithEmail(email, password, displayName);
+        await switchRole('client');
         alert("Account created! Please check your email for verification.");
       }
       // Redirection handled by useEffect for login
@@ -56,6 +56,7 @@ export default function Login() {
     setError(null);
     try {
       await signIn();
+      switchRole('client');
     } catch (err: any) {
       setError(err.message || "Google sign in failed.");
       setIsLoading(false);
@@ -63,24 +64,45 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4 transition-colors duration-300 relative">
-      <div className="absolute top-8 right-8">
+    <div className="min-h-screen bg-white dark:bg-[#0F172A] flex flex-col items-center justify-center p-4 transition-colors duration-300 relative overflow-hidden">
+      {/* Background blobs */}
+      <div className="absolute -top-[10%] -right-[10%] w-[40%] h-[40%] bg-blue-100/50 dark:bg-blue-900/20 blur-[120px] rounded-full" />
+      <div className="absolute -bottom-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-50/50 dark:bg-blue-800/10 blur-[120px] rounded-full" />
+
+      <div className="absolute top-8 right-8 z-10">
         <motion.button
-          whileHover={{ scale: 1.1 }}
+          whileHover={{ scale: 1.1, rotate: 180 }}
           whileTap={{ scale: 0.9 }}
           onClick={toggleTheme}
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all shadow-xl"
         >
           {theme === "light" ? <Moon className="h-6 w-6" /> : <Sun className="h-6 w-6" />}
         </motion.button>
       </div>
 
-      <Link to="/" className="flex items-center gap-2 text-3xl font-black tracking-tight text-blue-600 mb-12">
-        <Zap className="h-10 w-10 fill-blue-600" />
-        <span>Quiklance</span>
-      </Link>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Link to="/" className="flex items-center gap-3 text-4xl font-black tracking-tight text-gray-900 dark:text-white mb-10 group">
+          <motion.div
+            whileHover={{ rotate: 15, scale: 1.1 }}
+          >
+            <Zap className="h-12 w-12 fill-blue-600" />
+          </motion.div>
+          <span>Quiklance</span>
+        </Link>
+      </motion.div>
 
-      <Card className="w-full max-w-md p-10 shadow-2xl shadow-blue-100/50 dark:shadow-blue-950/50 border-blue-50 dark:border-gray-800">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.2 }}
+        className="w-full max-w-md relative"
+      >
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-[2.5rem] blur opacity-20 dark:opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+        <Card className="relative w-full p-8 md:p-12 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] border-gray-100 dark:border-gray-800 rounded-[2rem] bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl">
         <div className="space-y-6">
           <div className="space-y-2">
             <h2 className="text-2xl font-black text-gray-900 dark:text-gray-100">
@@ -187,7 +209,7 @@ export default function Login() {
                 </>
               )}
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col gap-3">
               <Link to="/become-quiklancer" className="text-xs font-bold text-gray-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
                 Want to earn? Become a Quiklancer
               </Link>
@@ -195,6 +217,7 @@ export default function Login() {
           </div>
         </div>
       </Card>
+      </motion.div>
     </div>
   );
 }

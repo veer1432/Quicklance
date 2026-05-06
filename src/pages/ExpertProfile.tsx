@@ -88,12 +88,13 @@ export default function ExpertProfile() {
   };
 
   useEffect(() => {
-    if (!id || !user) {
+    if (!id) {
       setLoading(false);
       return;
     }
 
     const checkActiveSession = async () => {
+      if (!user) return;
       try {
         const q = query(
           collection(db, 'sessions'),
@@ -108,10 +109,16 @@ export default function ExpertProfile() {
     };
 
     const fetchExpert = async () => {
+      if (!db) {
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       const path = `users/${id}`;
       try {
-        await checkActiveSession();
+        if (user) {
+          await checkActiveSession();
+        }
         const docSnap = await getDoc(doc(db, "users", id));
         if (docSnap.exists()) {
           const data = docSnap.data() as UserProfile;
@@ -130,7 +137,7 @@ export default function ExpertProfile() {
     };
 
     fetchExpert();
-  }, [id, user]);
+  }, [id, user, profile]);
 
   if (authLoading || (user && loading)) {
     return (

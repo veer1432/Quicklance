@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Zap, Monitor, Code, Database, Search, Layout, ShoppingCart, Globe, TrendingUp, ArrowRight, Star, CheckCircle2, Phone, Calendar, ShieldCheck, ChevronRight, MessageSquare, Video, Lock, Banknote, Scissors, FileText, HelpCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { CATEGORIES } from "@/src/types";
@@ -6,6 +7,8 @@ import { useCurrency } from "@/src/contexts/CurrencyContext";
 import { Button } from "@/src/components/ui/Button";
 import { Card } from "@/src/components/ui/Card";
 import { FEEDBACK_MODE } from "@/src/config";
+import { db } from "@/src/firebase";
+import { collection, query, where, limit, getDocs } from "firebase/firestore";
 
 const categoryIcons: Record<string, any> = {
   "Wix/Websites": Layout,
@@ -45,6 +48,48 @@ const itemVariants = {
 
 export default function Home() {
   const { formatPrice } = useCurrency();
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState("");
+  const [popularSkills, setPopularSkills] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchSkills() {
+      if (!db) {
+        setPopularSkills(CATEGORIES.slice(0, 5));
+        return;
+      }
+      try {
+        const q = query(
+          collection(db, "users"),
+          where("role", "==", "expert"),
+          where("status", "==", "active"),
+          limit(10)
+        );
+        const snapshot = await getDocs(q);
+        const skills = new Set<string>();
+        snapshot.docs.forEach(doc => {
+          const data = doc.data();
+          data.skills?.forEach((s: string) => skills.add(s));
+        });
+        // Add some default ones if empty
+        if (skills.size === 0) {
+          CATEGORIES.slice(0, 5).forEach(c => skills.add(c));
+        }
+        setPopularSkills(Array.from(skills).slice(0, 10));
+      } catch (err) {
+        console.error("Error fetching skills for home:", err);
+        setPopularSkills(CATEGORIES.slice(0, 5));
+      }
+    }
+    fetchSkills();
+  }, []);
+
+  const handleSearch = () => {
+    if (searchValue.trim()) {
+      navigate(`/category/all?q=${encodeURIComponent(searchValue.trim())}`);
+    }
+  };
+
   return (
     <div className="flex flex-col bg-white dark:bg-[#0F172A] transition-colors duration-300">
       {/* Hero Section */}
@@ -82,25 +127,45 @@ export default function Home() {
             
             <motion.div 
               variants={itemVariants}
-              className="mt-12 flex flex-col items-center gap-4 sm:flex-row w-full max-w-2xl"
+              className="mt-12 flex flex-col items-center gap-6 w-full max-w-3xl"
             >
               <div className="relative w-full group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+                <Search className="absolute left-8 top-1/2 -translate-y-1/2 h-7 w-7 text-gray-400 group-focus-within:text-blue-600 transition-all duration-300" />
                 <input 
                   type="text" 
                   placeholder="What task do you want to clear? (e.g. GST, SEO, Wix fix)" 
-                  className="w-full h-20 pl-16 pr-48 rounded-[2rem] border-2 border-transparent bg-white dark:bg-[#1e293b] text-xl text-gray-900 dark:text-white shadow-2xl shadow-blue-100 dark:shadow-none focus:border-blue-600 focus:outline-none transition-all placeholder:text-gray-400"
+                  className="w-full h-24 pl-20 pr-52 rounded-[2.5rem] border-2 border-transparent bg-white dark:bg-[#1e293b] text-2xl text-gray-900 dark:text-white shadow-[0_32px_64px_-16px_rgba(37,99,235,0.12)] dark:shadow-none focus:border-blue-600 focus:outline-none transition-all placeholder:text-gray-400"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
-                      window.location.href = `/category/all?q=${encodeURIComponent(e.currentTarget.value)}`;
+                      handleSearch();
                     }
                   }}
                 />
-                <Button className="absolute right-3 top-3 bottom-3 px-8 rounded-2xl text-lg hidden sm:flex" asChild>
-                  <Link to="/post-issue">
-                    Go
-                  </Link>
+                <Button 
+                  className="absolute right-4 top-4 bottom-4 px-12 rounded-[1.5rem] text-xl font-black shadow-xl shadow-blue-600/20 hidden sm:flex"
+                  onClick={handleSearch}
+                >
+                  Go
                 </Button>
+              </div>
+
+              {/* Keyword tags */}
+              <div className="flex flex-wrap justify-center gap-2">
+                <span className="text-sm font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mr-2 py-1">Popular:</span>
+                {popularSkills.map(skill => (
+                  <button 
+                    key={skill}
+                    onClick={() => {
+                      setSearchValue(skill);
+                      navigate(`/category/all?q=${encodeURIComponent(skill)}`);
+                    }}
+                    className="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm font-bold hover:bg-blue-600 hover:text-white transition-all cursor-pointer"
+                  >
+                    {skill}
+                  </button>
+                ))}
               </div>
             </motion.div>
 
